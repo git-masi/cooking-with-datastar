@@ -1,0 +1,36 @@
+package cooking;
+
+import (
+	"cooking-with-datastar/cmd/internal"
+	"fmt"
+)
+
+type Task struct {
+	Key         string
+	Description string
+}
+
+templ Prep(recipe string, tasks []Task) {
+	<section id="prep-work" style="padding: 1rem; border: .25rem solid var(--pico-color-grey-100); border-radius: 5px;">
+		<h3>Prep work</h3>
+		for _,t := range tasks {
+			<div style="margin-bottom: 2rem;">
+				<p>
+					{ t.Description }
+				</p>
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<button
+						id={ fmt.Sprintf("button-%s", t.Key) }
+						data-on-click={ fmt.Sprintf(
+								"el.disabled = true; %s",
+								fmt.Sprintf("@get('/prep/%s/%s')", recipe, t.Key),
+								) }
+					>
+						{ internal.ToStartCase(t.Key) }
+					</button>
+				</div>
+				<hr/>
+			</div>
+		}
+	</section>
+}

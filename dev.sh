@@ -1,0 +1,1 @@
+wgo -xfile _templ.go -xfile _test.go -file .templ -file .go go tool templ generate :: go run ./cmd/main.go

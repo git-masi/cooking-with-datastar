@@ -1,0 +1,4 @@
+.env
+
+# Ignore files generate by Templ
+*_templ.go

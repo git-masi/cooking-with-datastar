@@ -1,0 +1,30 @@
+package cooking
+
+import "cooking-with-datastar/cmd/components"
+
+templ Cooking() {
+	@components.Page("Cooking with Datastar") {
+		@components.BodyHeader("Cooking with Datastar")
+		<main>
+			<section id="recipes">
+				<header>
+					<hgroup>
+						<h2>Let&rsquo;s get cooking!</h2>
+						<p>Select a recipe to begin</p>
+					</hgroup>
+				</header>
+				<fieldset role="group">
+					<select name="select" aria-label="Select" required data-bind="recipe">
+						<option selected disabled value="">Select</option>
+						<option value="buffalo-chicken-dip">Buffalo chicken dip</option>
+					</select>
+					<a
+						data-attr="{disabled: !$recipe, href: '/recipe/' + $recipe}"
+						data-text="$recipe ? 'Ready Chef!' : 'Decisions, decisions...'"
+						role="button"
+					></a>
+				</fieldset>
+			</section>
+		</main>
+	}
+}

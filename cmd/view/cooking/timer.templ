@@ -1,0 +1,12 @@
+package cooking
+
+templ TimeDisplay(time string) {
+	<span id="time" style="font-family: Consolas, Monaco, 'Lucida Console', monospace;">{ time }</span>
+}
+
+templ Timer(task string, time string) {
+	<div id={ "count-down-" + task } class="count-down" style="display: flex; justify-content: center; align-items: center;">
+		<div id="ring" class="ring"></div>
+		@TimeDisplay(time)
+	</div>
+}
