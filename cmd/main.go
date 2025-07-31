@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipe"
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
 	"flag"
@@ -40,11 +41,13 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /recipe/{recipe}", func(w http.ResponseWriter, r *http.Request) {
-		recipe := r.PathValue("recipe")
+		_recipe, err := recipe.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
 
-		w.Header().Add("content-type", "text/html")
-
-		cooking.Recipe(recipe).Render(r.Context(), w)
+		cooking.Recipe(_recipe).Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("PATCH /ingredients/{recipe}", func(w http.ResponseWriter, r *http.Request) {

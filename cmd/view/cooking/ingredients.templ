@@ -1,19 +1,17 @@
 package cooking
 
-import "fmt"
+import (
+	"cooking-with-datastar/cmd/recipe"
+	"fmt"
+)
 
-type Ingredient struct {
-	Key         string
-	Description string
-}
-
-templ Ingredients(recipe string, ingredients []Ingredient) {
+templ Ingredients(r recipe.Recipe) {
 	<section id="ingredients" style="padding: 1rem; border: .25rem solid var(--pico-primary); border-radius: 5px;">
 		<h3>Gather ingredients</h3>
-		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", recipe) }>
+		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", r.String()) }>
 			<fieldset>
 				<legend>Check ingredients off as you gather them</legend>
-				for _, value := range ingredients {
+				for _, value := range recipe.GetIngredients(r) {
 					<label>
 						<input type="checkbox" data-bind={ value.Key }/>
 						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", value.Key) }>

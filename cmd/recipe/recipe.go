@@ -1,5 +1,7 @@
 package recipe
 
+import "errors"
+
 type Recipe int
 
 const (
@@ -26,4 +28,14 @@ func ListAll() []Recipe {
 	}
 
 	return list
+}
+
+func ParseRecipe(name string) (Recipe, error) {
+	for r, n := range recipeName {
+		if n == name {
+			return r, nil
+		}
+	}
+
+	return -1, errors.New("invalid recipe name")
 }

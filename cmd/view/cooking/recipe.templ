@@ -3,30 +3,21 @@ package cooking
 import (
 	"cooking-with-datastar/cmd/components"
 	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipe"
 )
 
-templ Recipe(recipe string) {
+templ Recipe(r recipe.Recipe) {
 	@components.Page("Recipe") {
 		@components.BodyHeader("Recipe")
 		<main id="main">
 			<header>
 				<hgroup>
-					<h2>{ internal.ToStartCase(recipe) }</h2>
+					<h2>{ internal.ToStartCase(r.String()) }</h2>
 					<p>So good it'll make ya wanna slap ya momma</p>
 				</hgroup>
 			</header>
-			@Ingredients(recipe, []Ingredient{
-				{"chicken", "3 large boneless skinless chicken breasts"},
-				{"cream-cheese", "8 ounces cream cheese"},
-				{"ranch-dressing", "1 cup ranch dressing"},
-				{"hot-sauce", "1 cup hot sauce"},
-				{"black-pepper", "1 teaspoon freshly ground black pepper"},
-				{"garlic-powder", "1 teaspoon garlic powder"},
-				{"green-onion", "0.5 cup green onion"},
-				{"mozzarella-cheese", "1.5 cups mozzarella cheese"},
-				{"cheddar-cheese", "1.5 cups cheddar cheese"},
-			})
-			@Prep(recipe, []Task{
+			@Ingredients(r)
+			@Prep(r.String(), []Task{
 				{"cook-the-chicken", "Poach your chicken for approximately 25 minutes. When fully cooked, remove from pot and allow to cool until safe to handle."},
 				{"shred", "Shred chicken in food processor."},
 				{"heat-the-oven", "Preheat the oven to 350 degrees farenheit."},
