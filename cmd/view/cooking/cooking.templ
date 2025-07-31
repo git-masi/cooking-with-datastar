@@ -1,6 +1,10 @@
 package cooking
 
-import "cooking-with-datastar/cmd/components"
+import (
+	"cooking-with-datastar/cmd/components"
+	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipe"
+)
 
 templ Cooking() {
 	@components.Page("Cooking with Datastar") {
@@ -16,7 +20,9 @@ templ Cooking() {
 				<fieldset role="group">
 					<select name="select" aria-label="Select" required data-bind="recipe">
 						<option selected disabled value="">Select</option>
-						<option value="buffalo-chicken-dip">Buffalo chicken dip</option>
+						for _, r := range recipe.ListAll() {
+							<option value={ r.String() }>{ internal.ToStartCase(r.String()) }</option>
+						}
 					</select>
 					<a
 						data-attr="{disabled: !$recipe, href: '/recipe/' + $recipe}"
