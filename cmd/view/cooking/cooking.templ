@@ -20,7 +20,7 @@ templ Cooking() {
 				<fieldset role="group">
 					<select name="select" aria-label="Select" required data-bind="recipe">
 						<option selected disabled value="">Select</option>
-						for _, r := range recipe.ListAll() {
+						for _, r := range recipe.ListRecipes() {
 							<option value={ r.String() }>{ internal.ToStartCase(r.String()) }</option>
 						}
 					</select>

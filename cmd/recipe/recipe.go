@@ -20,7 +20,7 @@ func (r Recipe) String() string {
 	return recipeName[r]
 }
 
-func ListAll() []Recipe {
+func ListRecipes() []Recipe {
 	list := []Recipe{}
 
 	for r := range recipeName {

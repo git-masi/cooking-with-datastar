@@ -5,7 +5,7 @@ type Ingredient struct {
 	Description string
 }
 
-func GetIngredients(r Recipe) []Ingredient {
+func ListIngredients(r Recipe) []Ingredient {
 	switch r {
 	case BuffaloChickenDip:
 		return []Ingredient{
