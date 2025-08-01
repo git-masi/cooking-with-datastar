@@ -6,6 +6,9 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -46,6 +49,38 @@ func main() {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
+
+		recipeName := recipe.String()
+
+		cookie, err := r.Cookie(recipeName)
+		if err != nil {
+			if !errors.Is(err, http.ErrNoCookie) {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			data, err := json.Marshal(recipe.ListIngredients())
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			cookie = &http.Cookie{
+				Name:     recipeName,
+				Value:    hex.EncodeToString(data),
+				Path:     "/",
+				MaxAge:   int((1 * time.Hour).Seconds()),
+				HttpOnly: true,                 // Do not allow JS to modify the cookie
+				Secure:   true,                 // Only use HTTPS (and localhost)
+				SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
+			}
+
+			http.SetCookie(w, cookie)
+		}
+
+		logger.Info("Got cookie", slog.String("cookie name", cookie.Name))
 
 		cooking.Recipe(recipe).Render(r.Context(), w)
 	})

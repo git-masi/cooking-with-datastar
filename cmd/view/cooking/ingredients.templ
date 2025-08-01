@@ -9,7 +9,7 @@ templ Ingredients(r recipes.Recipe) {
 		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", r.String()) }>
 			<fieldset>
 				<legend>Check ingredients off as you gather them</legend>
-				for _, value := range recipes.ListIngredients(r) {
+				for _, value := range r.ListIngredients() {
 					<label>
 						<input type="checkbox" data-bind={ value.Key }/>
 						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", value.Key) }>
