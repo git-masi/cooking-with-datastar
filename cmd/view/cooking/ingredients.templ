@@ -1,17 +1,15 @@
 package cooking
 
-import (
-	"cooking-with-datastar/cmd/recipe"
-	"fmt"
-)
+import "fmt"
+import "cooking-with-datastar/cmd/recipes"
 
-templ Ingredients(r recipe.Recipe) {
+templ Ingredients(r recipes.Recipe) {
 	<section id="ingredients" style="padding: 1rem; border: .25rem solid var(--pico-primary); border-radius: 5px;">
 		<h3>Gather ingredients</h3>
 		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", r.String()) }>
 			<fieldset>
 				<legend>Check ingredients off as you gather them</legend>
-				for _, value := range recipe.ListIngredients(r) {
+				for _, value := range recipes.ListIngredients(r) {
 					<label>
 						<input type="checkbox" data-bind={ value.Key }/>
 						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", value.Key) }>

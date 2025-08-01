@@ -2,14 +2,14 @@ package cooking;
 
 import (
 	"cooking-with-datastar/cmd/internal"
-	"cooking-with-datastar/cmd/recipe"
+	"cooking-with-datastar/cmd/recipes"
 	"fmt"
 )
 
-templ Prep(r recipe.Recipe) {
+templ Prep(r recipes.Recipe) {
 	<section id="prep-work" style="padding: 1rem; border: .25rem solid var(--pico-color-grey-100); border-radius: 5px;">
 		<h3>Prep work</h3>
-		for _,t := range recipe.ListPrepTasks(r) {
+		for _,t := range recipes.ListPrepTasks(r) {
 			<div style="margin-bottom: 2rem;">
 				<p>
 					{ t.Description }

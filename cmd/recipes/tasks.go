@@ -1,4 +1,4 @@
-package recipe
+package recipes
 
 type Task struct {
 	Key         string

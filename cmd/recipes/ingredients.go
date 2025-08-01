@@ -1,4 +1,4 @@
-package recipe
+package recipes
 
 type Ingredient struct {
 	Key         string

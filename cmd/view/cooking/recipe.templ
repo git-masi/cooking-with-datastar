@@ -3,10 +3,10 @@ package cooking
 import (
 	"cooking-with-datastar/cmd/components"
 	"cooking-with-datastar/cmd/internal"
-	"cooking-with-datastar/cmd/recipe"
+	"cooking-with-datastar/cmd/recipes"
 )
 
-templ Recipe(r recipe.Recipe) {
+templ Recipe(r recipes.Recipe) {
 	@components.Page("Recipe") {
 		@components.BodyHeader("Recipe")
 		<main id="main">

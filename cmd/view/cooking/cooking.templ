@@ -3,7 +3,7 @@ package cooking
 import (
 	"cooking-with-datastar/cmd/components"
 	"cooking-with-datastar/cmd/internal"
-	"cooking-with-datastar/cmd/recipe"
+	"cooking-with-datastar/cmd/recipes"
 )
 
 templ Cooking() {
@@ -20,7 +20,7 @@ templ Cooking() {
 				<fieldset role="group">
 					<select name="select" aria-label="Select" required data-bind="recipe">
 						<option selected disabled value="">Select</option>
-						for _, r := range recipe.ListRecipes() {
+						for _, r := range recipes.ListRecipes() {
 							<option value={ r.String() }>{ internal.ToStartCase(r.String()) }</option>
 						}
 					</select>
