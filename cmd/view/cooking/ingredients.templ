@@ -1,17 +1,20 @@
 package cooking
 
-import "fmt"
-import "cooking-with-datastar/cmd/recipes"
+import (
+	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipes"
+	"fmt"
+)
 
 templ Ingredients(r recipes.Recipe, s recipes.Step) {
-	<section id="ingredients" style="padding: 1rem; border: .25rem solid var(--pico-primary); border-radius: 5px;">
+	<section id="ingredients" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Gather) }>
 		<h3>Gather ingredients</h3>
 		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", r.String()) }>
 			<fieldset>
 				<legend>Check ingredients off as you gather them</legend>
 				for _, value := range r.ListIngredients() {
 					<label>
-						<input type="checkbox" data-bind={ value.Key }/>
+						<input type="checkbox" name={ value.Key } data-bind={ value.Key } disabled={ s != recipes.Gather }/>
 						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", value.Key) }>
 							{ value.Description }
 						</span>
