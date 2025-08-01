@@ -5,15 +5,15 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 )
 
-templ Cook(cookingMethod string, s recipes.Step) {
+templ Cook(r recipes.Recipe, s recipes.Step) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
 		{ children... }
 		<button
-			id={ "button-" + cookingMethod }
+			id={ "button-" + r.GetCookingMethod() }
 			disabled={ s != recipes.Cook }
 		>
-			{ internal.ToStartCase(cookingMethod) }
+			{ internal.ToStartCase(r.GetCookingMethod()) }
 		</button>
 	</section>
 }
