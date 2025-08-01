@@ -3,9 +3,8 @@ package recipes
 import "errors"
 
 type Ingredient struct {
-	Key         string `json:"key"`
-	Description string `json:"description"`
-	Gathered    bool   `json:"gathered"`
+	Key         string
+	Description string
 }
 
 type Recipe int
@@ -30,25 +29,25 @@ func (r Recipe) ListIngredients() []Ingredient {
 	switch r {
 	case BuffaloChickenDip:
 		return []Ingredient{
-			{"chicken", "3 large boneless skinless chicken breasts", false},
-			{"cream-cheese", "8 ounces cream cheese", false},
-			{"ranch-dressing", "1 cup ranch dressing", false},
-			{"hot-sauce", "1 cup hot sauce", false},
-			{"black-pepper", "1 teaspoon freshly ground black pepper", false},
-			{"garlic-powder", "1 teaspoon garlic powder", false},
-			{"green-onion", "0.5 cup green onion", false},
-			{"mozzarella-cheese", "1.5 cups mozzarella cheese", false},
-			{"cheddar-cheese", "1.5 cups cheddar cheese", false},
+			{"chicken", "3 large boneless skinless chicken breasts"},
+			{"cream-cheese", "8 ounces cream cheese"},
+			{"ranch-dressing", "1 cup ranch dressing"},
+			{"hot-sauce", "1 cup hot sauce"},
+			{"black-pepper", "1 teaspoon freshly ground black pepper"},
+			{"garlic-powder", "1 teaspoon garlic powder"},
+			{"green-onion", "0.5 cup green onion"},
+			{"mozzarella-cheese", "1.5 cups mozzarella cheese"},
+			{"cheddar-cheese", "1.5 cups cheddar cheese"},
 		}
 
 	case ChocolateChipCookies:
 		return []Ingredient{
-			{"chocolate-chips", "1 cup chocolate chips", false},
+			{"chocolate-chips", "1 cup chocolate chips"},
 		}
 
 	case PulledPork:
 		return []Ingredient{
-			{"pork-shoulder", "3 pounds pork shoulder", false},
+			{"pork-shoulder", "3 pounds pork shoulder"},
 		}
 
 	default:
