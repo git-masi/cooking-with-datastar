@@ -9,7 +9,7 @@ import (
 templ Cooking() {
 	@components.Page("Cooking with Datastar") {
 		@components.BodyHeader("Cooking with Datastar")
-		<main>
+		<main id="main">
 			<section id="recipes">
 				<header>
 					<hgroup>
@@ -24,11 +24,11 @@ templ Cooking() {
 							<option value={ r.String() }>{ internal.ToStartCase(r.String()) }</option>
 						}
 					</select>
-					<a
-						data-attr="{disabled: !$recipe, href: '/recipe/' + $recipe}"
+					<button
+						data-attr="{disabled: !$recipe}"
+						data-on-click="@get('/recipe/' + $recipe)"
 						data-text="$recipe ? 'Ready Chef!' : 'Decisions, decisions...'"
-						role="button"
-					></a>
+					></button>
 				</fieldset>
 			</section>
 		</main>

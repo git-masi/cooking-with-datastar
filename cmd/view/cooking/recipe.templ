@@ -1,26 +1,22 @@
 package cooking
 
 import (
-	"cooking-with-datastar/cmd/components"
 	"cooking-with-datastar/cmd/internal"
 	"cooking-with-datastar/cmd/recipes"
 )
 
 templ Recipe(r recipes.Recipe, s recipes.Step) {
-	@components.Page("Recipe") {
-		@components.BodyHeader("Recipe")
-		<main id="main">
-			<header>
-				<hgroup>
-					<h2>{ internal.ToStartCase(r.String()) }</h2>
-					<p>So good it'll make you question if this site is legit</p>
-				</hgroup>
-			</header>
-			@Ingredients(r, s)
-			@Prep(r, s)
-			@Cook("bake", s) {
-				<p>Bake for 20-30 minutes, or until the cheese has melted and the sides are starting to bubble.</p>
-			}
-		</main>
-	}
+	<main id="main">
+		<header>
+			<hgroup>
+				<h2>{ internal.ToStartCase(r.String()) }</h2>
+				<p>So good it'll make you question if this site is legit</p>
+			</hgroup>
+		</header>
+		@Ingredients(r, s)
+		@Prep(r, s)
+		@Cook("bake", s) {
+			<p>Bake for 20-30 minutes, or until the cheese has melted and the sides are starting to bubble.</p>
+		}
+	</main>
 }

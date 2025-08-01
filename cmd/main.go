@@ -69,7 +69,16 @@ func main() {
 			return
 		}
 
-		cooking.Recipe(recipe, step).Render(r.Context(), w)
+		sse := datastar.NewSSE(w, r)
+
+		err = sse.PatchElementTempl(
+			cooking.Recipe(recipe, step),
+		)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
 	})
 
 	mux.HandleFunc("PATCH /ingredients/{recipe}", func(w http.ResponseWriter, r *http.Request) {
