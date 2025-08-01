@@ -5,6 +5,7 @@ import "cooking-with-datastar/cmd/internal"
 templ Cook(cookingMethod string) {
 	<section id="prep-work" style="padding: 1rem; border: .25rem solid var(--pico-color-grey-100); border-radius: 5px;">
 		<h3>Cook the food</h3>
+		{ children... }
 		<button
 			id={ "button-" + cookingMethod }
 		>
