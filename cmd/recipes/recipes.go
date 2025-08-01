@@ -74,3 +74,21 @@ func ParseRecipe(name string) (Recipe, error) {
 
 	return -1, errors.New("invalid recipe name")
 }
+
+type RecipeStep int
+
+const (
+	Gather RecipeStep = iota
+	Prepare
+	Cook
+)
+
+var recipeStepName = map[RecipeStep]string{
+	Gather:  "gather",
+	Prepare: "prepare",
+	Cook:    "cook",
+}
+
+func (r RecipeStep) String() string {
+	return recipeStepName[r]
+}
