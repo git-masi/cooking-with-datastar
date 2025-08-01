@@ -1,13 +1,17 @@
 package cooking
 
-import "cooking-with-datastar/cmd/internal"
+import (
+	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipes"
+)
 
-templ Cook(cookingMethod string) {
-	<section id="prep-work" style="padding: 1rem; border: .25rem solid var(--pico-color-grey-100); border-radius: 5px;">
+templ Cook(cookingMethod string, s recipes.Step) {
+	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
 		{ children... }
 		<button
 			id={ "button-" + cookingMethod }
+			disabled={ s != recipes.Gather }
 		>
 			{ internal.ToStartCase(cookingMethod) }
 		</button>

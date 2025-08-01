@@ -17,8 +17,8 @@ templ Recipe(r recipes.Recipe, s recipes.Step) {
 				</hgroup>
 			</header>
 			@Ingredients(r, s)
-			@Prep(r)
-			@Cook("bake") {
+			@Prep(r, s)
+			@Cook("bake", s) {
 				<p>Bake for 20-30 minutes, or until the cheese has melted and the sides are starting to bubble.</p>
 			}
 		</main>
