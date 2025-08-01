@@ -11,6 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -18,18 +19,6 @@ import (
 
 	"github.com/starfederation/datastar-go/datastar"
 )
-
-type BuffaloChickenIngredients struct {
-	Chicken          bool `json:"chicken"`
-	CreamCheese      bool `json:"cream-cheese"`
-	RanchDressing    bool `json:"ranch-dressing"`
-	HotSauce         bool `json:"hot-sauce"`
-	BlackPepper      bool `json:"black-pepper"`
-	GarlicPowder     bool `json:"garlic-powder"`
-	GreenOnion       bool `json:"green-onion"`
-	MozzarellaCheese bool `json:"mozzarella-cheese"`
-	CheddarCheese    bool `json:"cheddar-cheese"`
-}
 
 var prepTime = map[string]time.Duration{
 	"cook-the-chicken": 25 * time.Second,
@@ -86,16 +75,46 @@ func main() {
 	})
 
 	mux.HandleFunc("PATCH /ingredients/{recipe}", func(w http.ResponseWriter, r *http.Request) {
-		recipe := r.PathValue("recipe")
-
-		ingredients := &BuffaloChickenIngredients{}
-		if err := datastar.ReadSignals(r, ingredients); err != nil {
+		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
 			logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		logger.Info("PATCH ingredients", slog.String("recipe", recipe), slog.Any("ingredients", ingredients))
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+
+		recipeName := recipe.String()
+		cookieName := recipeName + "-ingredients"
+
+		cookie, err := r.Cookie(cookieName)
+		if err != nil {
+			if !errors.Is(err, http.ErrNoCookie) {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			cookie = &http.Cookie{
+				Name:     cookieName,
+				Value:    "",
+				Path:     "/",
+				MaxAge:   int((1 * time.Hour).Seconds()),
+				HttpOnly: true,                 // Do not allow JS to modify the cookie
+				Secure:   true,                 // Only use HTTPS (and localhost)
+				SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
+			}
+		}
+
+		cookie.Value = hex.EncodeToString(body)
+
+		http.SetCookie(w, cookie)
 	})
 
 	mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
