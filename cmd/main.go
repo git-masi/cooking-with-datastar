@@ -41,7 +41,7 @@ func main() {
 		recipeName := recipe.String()
 		cookieName := recipeName + "-step"
 
-		_, err = r.Cookie(cookieName)
+		cookie, err := r.Cookie(cookieName)
 		if err != nil {
 			if !errors.Is(err, http.ErrNoCookie) {
 				logger.Error(err.Error())
@@ -49,7 +49,7 @@ func main() {
 				return
 			}
 
-			cookie := &http.Cookie{
+			cookie = &http.Cookie{
 				Name:     cookieName,
 				Value:    recipes.Gather.String(),
 				Path:     "/",
@@ -62,7 +62,14 @@ func main() {
 			http.SetCookie(w, cookie)
 		}
 
-		cooking.Recipe(recipe).Render(r.Context(), w)
+		step, err := recipes.ParseRecipeStep(cookie.Value)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		cooking.Recipe(recipe, step).Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("PATCH /ingredients/{recipe}", func(w http.ResponseWriter, r *http.Request) {

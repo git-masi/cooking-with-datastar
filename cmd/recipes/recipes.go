@@ -75,20 +75,30 @@ func ParseRecipe(name string) (Recipe, error) {
 	return -1, errors.New("invalid recipe name")
 }
 
-type RecipeStep int
+type Step int
 
 const (
-	Gather RecipeStep = iota
+	Gather Step = iota
 	Prepare
 	Cook
 )
 
-var recipeStepName = map[RecipeStep]string{
+var stepName = map[Step]string{
 	Gather:  "gather",
 	Prepare: "prepare",
 	Cook:    "cook",
 }
 
-func (r RecipeStep) String() string {
-	return recipeStepName[r]
+func (r Step) String() string {
+	return stepName[r]
+}
+
+func ParseRecipeStep(name string) (Step, error) {
+	for r, n := range stepName {
+		if n == name {
+			return r, nil
+		}
+	}
+
+	return -1, errors.New("invalid recipe name")
 }
