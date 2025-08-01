@@ -21,6 +21,7 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 								"el.disabled = true; %s",
 								fmt.Sprintf("@get('/prep/%s/%s')", r, t.Key),
 								) }
+						disabled={ s != recipes.Cook }
 					>
 						{ internal.ToStartCase(t.Key) }
 					</button>
