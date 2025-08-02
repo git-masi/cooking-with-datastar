@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-templ Ingredients(r recipes.Recipe, s recipes.Step) {
+templ Gather(r recipes.Recipe, s recipes.Step) {
 	<section id="ingredients" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Gather) }>
 		<h3>Gather ingredients</h3>
 		<form id="ingredients-form" data-on-input={ fmt.Sprintf("@patch('/ingredients/%s')", r.String()) }>
