@@ -96,6 +96,7 @@ const (
 	Gather Step = iota
 	Prepare
 	Cook
+	Done
 )
 
 var stepName = map[Step]string{
@@ -106,6 +107,22 @@ var stepName = map[Step]string{
 
 func (r Step) String() string {
 	return stepName[r]
+}
+
+func (s Step) Next() Step {
+	switch s {
+	case Gather:
+		return Prepare
+
+	case Prepare:
+		return Cook
+
+	case Cook:
+		return Done
+
+	default:
+		return Gather
+	}
 }
 
 func ParseRecipeStep(name string) (Step, error) {
