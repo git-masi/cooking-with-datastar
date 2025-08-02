@@ -38,31 +38,16 @@ func main() {
 			return
 		}
 
-		recipeName := recipe.String()
-		cookieName := recipeName + "-step"
+		cs := internal.NewCookieStorage(recipe, w, r)
 
-		cookie, err := r.Cookie(cookieName)
+		stepCookie, err := cs.GetStepCookie()
 		if err != nil {
-			if !errors.Is(err, http.ErrNoCookie) {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			cookie = &http.Cookie{
-				Name:     cookieName,
-				Value:    recipes.Gather.String(),
-				Path:     "/",
-				MaxAge:   int((1 * time.Hour).Seconds()),
-				HttpOnly: true,                 // Do not allow JS to modify the cookie
-				Secure:   true,                 // Only use HTTPS (and localhost)
-				SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
-			}
-
-			http.SetCookie(w, cookie)
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 
-		step, err := recipes.ParseRecipeStep(cookie.Value)
+		step, err := recipes.ParseRecipeStep(stepCookie.Value)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
