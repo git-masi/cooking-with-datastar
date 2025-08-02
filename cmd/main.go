@@ -72,7 +72,7 @@ func main() {
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step),
+			cooking.Recipe(recipe, step, map[string]bool{}),
 		)
 		if err != nil {
 			logger.Error(err.Error())

@@ -5,7 +5,7 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 )
 
-templ Recipe(r recipes.Recipe, s recipes.Step) {
+templ Recipe(r recipes.Recipe, s recipes.Step, gathered map[string]bool) {
 	<main id="main">
 		<header>
 			<hgroup>
@@ -13,7 +13,7 @@ templ Recipe(r recipes.Recipe, s recipes.Step) {
 				<p>So good it'll make you question if this site is legit</p>
 			</hgroup>
 		</header>
-		@Gather(r, s)
+		@Gather(r, s, gathered)
 		@Prep(r, s)
 		@Cook(r, s) {
 			<p>Bake for 20-30 minutes, or until the cheese has melted and the sides are starting to bubble.</p>
