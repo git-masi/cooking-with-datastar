@@ -81,7 +81,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("PATCH /ingredients/{recipe}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("PATCH /gather/{recipe}", func(w http.ResponseWriter, r *http.Request) {
 		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
 		if err != nil {
 			logger.Error(err.Error())
