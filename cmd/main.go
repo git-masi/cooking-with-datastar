@@ -7,6 +7,7 @@ import (
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -80,6 +81,22 @@ func main() {
 			return
 		}
 		defer r.Body.Close()
+
+		var gathered map[string]bool
+		err = json.Unmarshal(body, &gathered)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		for _, v := range recipe.ListIngredients() {
+			if _, ok := gathered[v.Key]; !ok {
+				logger.Error("Invalid ingredient", slog.String("key", v.Key))
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			}
+		}
 
 		cs := internal.NewCookieStorage(recipe, w, r)
 
