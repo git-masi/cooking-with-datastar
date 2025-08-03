@@ -9,24 +9,22 @@ import (
 templ Gather(r recipes.Recipe, s recipes.Step, gathered map[string]bool) {
 	<section id="gather" data-signals-gathering={ s == recipes.Gather } style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Gather) }>
 		<h3>Gather ingredients</h3>
-		<form id="gather-form" data-on-input={ fmt.Sprintf("@patch('/gather/%s')", r.String()) }>
+		<form id="gather-form" data-on-input={ fmt.Sprintf("@patch('/gather/%s', {contentType: 'form'})", r.String()) }>
 			<fieldset>
 				<legend>Check ingredients off as you gather them</legend>
-				for _, value := range r.ListIngredients() {
+				for _, ingredient := range r.ListIngredients() {
 					<label>
 						<input
 							type="checkbox"
-							name={ value.Key }
-							data-bind={ value.Key }
+							name={ ingredient.Key }
+							data-bind={ ingredient.Key }
 							data-attr="{disabled: !$gathering}"
-							if b, ok := gathered[value.Key]; ok {
-								if b {
-									checked
-								}
+							if gathered[ingredient.Key] {
+								checked
 							}
 						/>
-						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", value.Key) }>
-							{ value.Description }
+						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", ingredient.Key) }>
+							{ ingredient.Description }
 						</span>
 					</label>
 				}

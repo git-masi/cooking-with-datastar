@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -54,10 +53,32 @@ func main() {
 			return
 		}
 
+		cookie, err = cs.GetIngredientsCookie()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		data, err := hex.DecodeString(cookie.Value)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		var gathered map[string]bool
+		err = json.Unmarshal(data, &gathered)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, map[string]bool{}),
+			cooking.Recipe(recipe, step, gathered),
 		)
 		if err != nil {
 			logger.Error(err.Error())
@@ -74,28 +95,16 @@ func main() {
 			return
 		}
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-		defer r.Body.Close()
-
-		var gathered map[string]bool
-		err = json.Unmarshal(body, &gathered)
+		err = r.ParseForm()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
+		gathered := map[string]bool{}
 		for _, v := range recipe.ListIngredients() {
-			if _, ok := gathered[v.Key]; !ok {
-				logger.Error("Invalid ingredient", slog.String("key", v.Key))
-				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-				return
-			}
+			gathered[v.Key] = r.Form.Has(v.Key)
 		}
 
 		cs := internal.NewCookieStorage(recipe, w, r)
@@ -107,7 +116,15 @@ func main() {
 			return
 		}
 
-		cookie.Value = hex.EncodeToString(body)
+		data, err := json.Marshal(gathered)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		cookie.Path = "/"
+		cookie.Value = hex.EncodeToString(data)
 
 		http.SetCookie(w, cookie)
 	})
