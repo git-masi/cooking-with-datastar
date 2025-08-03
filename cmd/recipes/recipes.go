@@ -105,8 +105,8 @@ var stepName = map[Step]string{
 	Cook:    "cook",
 }
 
-func (r Step) String() string {
-	return stepName[r]
+func (s Step) String() string {
+	return stepName[s]
 }
 
 func (s Step) Next() Step {
