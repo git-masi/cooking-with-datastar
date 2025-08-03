@@ -2,6 +2,8 @@ package internal
 
 import (
 	"cooking-with-datastar/cmd/recipes"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
@@ -58,9 +60,20 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 			return nil, err
 		}
 
+		gathered := map[string]bool{}
+
+		for _, v := range cs.recipe.ListIngredients() {
+			gathered[v.Key] = false
+		}
+
+		json, err := json.Marshal(gathered)
+		if err != nil {
+			return nil, err
+		}
+
 		cookie = &http.Cookie{
 			Name:     cookieName,
-			Value:    "",
+			Value:    hex.EncodeToString(json),
 			Path:     "/",
 			MaxAge:   int((24 * time.Hour).Seconds()),
 			HttpOnly: true,                 // Do not allow JS to modify the cookie

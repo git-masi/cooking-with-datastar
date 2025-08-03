@@ -54,6 +54,7 @@ func (r Recipe) ListIngredients() []Ingredient {
 		return []Ingredient{}
 	}
 }
+
 func (r Recipe) GetCookingMethod() string {
 	switch r {
 	case BuffaloChickenDip:
