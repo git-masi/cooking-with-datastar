@@ -32,8 +32,35 @@ func (cs CookieStorage) GetStepCookie() (*http.Cookie, error) {
 		}
 
 		cookie = &http.Cookie{
+			Name: cookieName,
+			// Get the first step
+			Value:    recipes.NextStep(-1).String(),
+			Path:     "/",
+			MaxAge:   int((24 * time.Hour).Seconds()),
+			HttpOnly: true,                 // Do not allow JS to modify the cookie
+			Secure:   true,                 // Only use HTTPS (and localhost)
+			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
+		}
+
+		http.SetCookie(cs.res, cookie)
+	}
+
+	return cookie, nil
+}
+
+func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
+	recipeName := cs.recipe.String()
+	cookieName := recipeName + "-ingredients"
+
+	cookie, err := cs.req.Cookie(cookieName)
+	if err != nil {
+		if !errors.Is(err, http.ErrNoCookie) {
+			return nil, err
+		}
+
+		cookie = &http.Cookie{
 			Name:     cookieName,
-			Value:    recipes.Gather.String(),
+			Value:    "",
 			Path:     "/",
 			MaxAge:   int((24 * time.Hour).Seconds()),
 			HttpOnly: true,                 // Do not allow JS to modify the cookie

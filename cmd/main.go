@@ -7,7 +7,6 @@ import (
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
 	"encoding/hex"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -40,14 +39,14 @@ func main() {
 
 		cs := internal.NewCookieStorage(recipe, w, r)
 
-		stepCookie, err := cs.GetStepCookie()
+		cookie, err := cs.GetStepCookie()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		step, err := recipes.ParseRecipeStep(stepCookie.Value)
+		step, err := recipes.ParseRecipeStep(cookie.Value)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -82,26 +81,13 @@ func main() {
 		}
 		defer r.Body.Close()
 
-		recipeName := recipe.String()
-		cookieName := recipeName + "-ingredients"
+		cs := internal.NewCookieStorage(recipe, w, r)
 
-		cookie, err := r.Cookie(cookieName)
+		cookie, err := cs.GetIngredientsCookie()
 		if err != nil {
-			if !errors.Is(err, http.ErrNoCookie) {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			cookie = &http.Cookie{
-				Name:     cookieName,
-				Value:    "",
-				Path:     "/",
-				MaxAge:   int((1 * time.Hour).Seconds()),
-				HttpOnly: true,                 // Do not allow JS to modify the cookie
-				Secure:   true,                 // Only use HTTPS (and localhost)
-				SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
-			}
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 
 		cookie.Value = hex.EncodeToString(body)

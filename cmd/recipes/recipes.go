@@ -109,7 +109,7 @@ func (s Step) String() string {
 	return stepName[s]
 }
 
-func (s Step) Next() Step {
+func NextStep(s Step) Step {
 	switch s {
 	case Gather:
 		return Prepare
