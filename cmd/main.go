@@ -157,7 +157,7 @@ func main() {
 
 			http.SetCookie(w, cookie)
 
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
 		}
 	})
 
