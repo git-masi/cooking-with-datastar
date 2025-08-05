@@ -17,10 +17,7 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 				<div style="display: flex; justify-content: space-between; align-items: center;">
 					<button
 						id={ fmt.Sprintf("button-%s", t.Key) }
-						data-on-click={ fmt.Sprintf(
-								"el.disabled = true; %s",
-								fmt.Sprintf("@get('/prep/%s/%s')", r, t.Key),
-								) }
+						data-on-click={ "el.disabled = true; " + fmt.Sprintf("@get('/prep/%s/%s')", r, t.Key) }
 						if s != recipes.Prepare {
 							disabled
 						}
