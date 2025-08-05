@@ -161,11 +161,13 @@ func main() {
 	})
 
 	mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: sanitize input
-		recipe := r.PathValue("recipe")
-		task := r.PathValue("task")
+		_, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
 
-		logger.Debug("Prep task", slog.String("recipe", recipe), slog.String("task", task))
+		task := r.PathValue("task")
 
 		duration, ok := prepTime[task]
 		if !ok {
@@ -175,7 +177,7 @@ func main() {
 		count := int(duration.Seconds())
 		sse := datastar.NewSSE(w, r)
 
-		err := sse.PatchElementTempl(
+		err = sse.PatchElementTempl(
 			cooking.Timer(task, internal.DisplayMinutesSeconds(count)),
 			datastar.WithSelectorID(fmt.Sprintf("button-%s", task)),
 			datastar.WithModeAfter(),

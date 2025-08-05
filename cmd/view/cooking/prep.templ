@@ -9,7 +9,7 @@ import (
 templ Prep(r recipes.Recipe, s recipes.Step) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Prepare) }>
 		<h3>Prep work</h3>
-		for _,t := range recipes.ListPrepTasks(r) {
+		for _,t := range r.ListPrepTasks() {
 			<div style="margin-bottom: 2rem;">
 				<p>
 					{ t.Description }
