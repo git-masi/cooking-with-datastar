@@ -102,9 +102,18 @@ func main() {
 			return
 		}
 
+		ingredients := recipe.ListIngredients()
+		count := 0
+
 		gathered := map[string]bool{}
-		for _, v := range recipe.ListIngredients() {
-			gathered[v.Key] = r.Form.Has(v.Key)
+		for _, v := range ingredients {
+			// Form data only includes the name of the checkbox if it is checked.
+			// So if the value exists at all then we know the value is "true"
+			checked := r.Form.Has(v.Key)
+			gathered[v.Key] = checked
+			if checked {
+				count++
+			}
 		}
 
 		cs := internal.NewCookieStorage(recipe, w, r)
@@ -127,6 +136,29 @@ func main() {
 		cookie.Value = hex.EncodeToString(data)
 
 		http.SetCookie(w, cookie)
+
+		if count == len(ingredients) {
+			cookie, err := cs.GetStepCookie()
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			step, err := recipes.ParseRecipeStep(cookie.Value)
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			cookie.Path = "/"
+			cookie.Value = recipes.NextStep(step).String()
+
+			http.SetCookie(w, cookie)
+
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 	})
 
 	mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
