@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"cooking-with-datastar/cmd/internal"
 	"cooking-with-datastar/cmd/recipes"
 	"cooking-with-datastar/cmd/view/about"
@@ -176,13 +175,16 @@ func main() {
 		count := int(duration.Seconds())
 		sse := datastar.NewSSE(w, r)
 
-		buf := bytes.NewBuffer([]byte{})
-		cooking.Timer(task, internal.DisplayMinutesSeconds(count)).Render(r.Context(), buf)
-		sse.PatchElements(
-			buf.String(),
+		err := sse.PatchElementTempl(
+			cooking.Timer(task, internal.DisplayMinutesSeconds(count)),
 			datastar.WithSelectorID(fmt.Sprintf("button-%s", task)),
 			datastar.WithModeAfter(),
 		)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
 
 		ticker := time.NewTicker(1 * time.Second)
 		done := make(chan bool)
@@ -195,9 +197,13 @@ func main() {
 				case <-ticker.C:
 					count--
 
-					buf.Reset()
-					cooking.Timer(task, internal.DisplayMinutesSeconds(count)).Render(r.Context(), buf)
-					sse.PatchElements(buf.String())
+					err := sse.PatchElementTempl(
+						cooking.Timer(task, internal.DisplayMinutesSeconds(count)),
+					)
+					if err != nil {
+						logger.Error(err.Error())
+						return
+					}
 				}
 			}
 		}()
