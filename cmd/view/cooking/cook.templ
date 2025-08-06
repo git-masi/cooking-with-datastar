@@ -6,18 +6,21 @@ import (
 	"fmt"
 )
 
-templ Cook(r recipes.Recipe, cm recipes.CookingMethod, s recipes.Step) {
+templ Cook(r recipes.Recipe, s recipes.Step) {
+	{{ cm := r.GetCookingMethod() }}
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
 		{ children... }
-		<button
-			id={ "button-" + cm.Name }
-			data-on-click={ fmt.Sprintf("@patch('/cook/%s')", r.String()) }
-			if s != recipes.Cook {
-				disabled
-			}
-		>
-			{ internal.ToStartCase(cm.Name) }
-		</button>
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<button
+				id={ "button-" + cm.Name }
+				data-on-click={ fmt.Sprintf("@get('/cook/%s')", r.String()) }
+				if s != recipes.Cook {
+					disabled
+				}
+			>
+				{ internal.ToStartCase(cm.Name) }
+			</button>
+		</div>
 	</section>
 }

@@ -146,23 +146,140 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
+	// mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
+	// 	recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+	// 	if err != nil {
+	// 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	// 		return
+	// 	}
+
+	// 	task, err := recipes.ParseTask(recipe, r.PathValue("task"))
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	cs := internal.NewCookieStorage(recipe, w, r)
+
+	// 	cookie, err := cs.GetPrepCookie(task)
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	timeRemaining, err := time.ParseDuration(cookie.Value)
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	sse := datastar.NewSSE(w, r)
+
+	// 	if timeRemaining.Seconds() == 0 {
+	// 		sse.PatchElementTempl(
+	// 			cooking.Timer(recipe, task, 0),
+	// 			datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
+	// 			datastar.WithModeAfter(),
+	// 		)
+
+	// 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
+	// 		return
+	// 	}
+
+	// 	seconds := int(task.PrepTime.Seconds())
+
+	// 	err = sse.PatchElementTempl(
+	// 		cooking.Timer(recipe, task, seconds),
+	// 		datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
+	// 		datastar.WithModeAfter(),
+	// 	)
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	ticker := time.NewTicker(1 * time.Second)
+	// 	done := make(chan bool)
+
+	// 	go func() {
+	// 		for {
+	// 			select {
+	// 			case <-done:
+	// 				return
+	// 			case <-ticker.C:
+	// 				seconds--
+
+	// 				err := sse.PatchElementTempl(
+	// 					cooking.Timer(recipe, task, seconds),
+	// 					datastar.WithModeReplace(),
+	// 				)
+	// 				if err != nil {
+	// 					logger.Error(err.Error())
+	// 					return
+	// 				}
+	// 			}
+	// 		}
+	// 	}()
+
+	// 	t := time.NewTimer(task.PrepTime)
+	// 	<-t.C
+	// 	ticker.Stop()
+	// 	done <- true
+
+	// 	sse.ExecuteScript(`document.querySelector("#ring").remove()`)
+	// })
+
+	// mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
+	// 	recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+	// 	if err != nil {
+	// 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	// 		return
+	// 	}
+
+	// 	task, err := recipes.ParseTask(recipe, r.PathValue("task"))
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	// 		return
+	// 	}
+
+	// 	cs := internal.NewCookieStorage(recipe, w, r)
+
+	// 	_, err = cs.DecrementPrepCookie(task, 1*time.Second)
+	// 	if err != nil {
+	// 		logger.Error(err.Error())
+	// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	if cs.IsEveryTaskFinished() {
+	// 		cookie, err := cs.ToNextStep()
+	// 		if err != nil {
+	// 			logger.Error(err.Error())
+	// 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	// 			return
+	// 		}
+
+	// 		http.SetCookie(w, cookie)
+
+	// 		http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
+	// 	}
+	// })
+
+	mux.HandleFunc("GET /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
 		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
-		task, err := recipes.ParseTask(recipe, r.PathValue("task"))
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
 		cs := internal.NewCookieStorage(recipe, w, r)
 
-		cookie, err := cs.GetPrepCookie(task)
+		cookie, err := cs.GetCookingMethodCookie()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -177,11 +294,13 @@ func main() {
 		}
 
 		sse := datastar.NewSSE(w, r)
+		id := "count-down-" + recipe.String()
+		path := fmt.Sprintf("/cook/%s", recipe.String())
 
-		if timeRemaining.Seconds() == 0 {
+		if timeRemaining.Seconds() <= 0 {
 			sse.PatchElementTempl(
-				cooking.Timer(recipe, task, 0),
-				datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
+				cooking.Timer(id, path, 0),
+				datastar.WithSelectorID("button-"+recipe.GetCookingMethod().Name),
 				datastar.WithModeAfter(),
 			)
 
@@ -189,11 +308,11 @@ func main() {
 			return
 		}
 
-		seconds := int(task.PrepTime.Seconds())
+		seconds := int(timeRemaining.Seconds())
 
 		err = sse.PatchElementTempl(
-			cooking.Timer(recipe, task, seconds),
-			datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
+			cooking.Timer(id, path, seconds),
+			datastar.WithSelectorID("button-"+recipe.GetCookingMethod().Name),
 			datastar.WithModeAfter(),
 		)
 		if err != nil {
@@ -203,6 +322,7 @@ func main() {
 		}
 
 		ticker := time.NewTicker(1 * time.Second)
+		timer := time.NewTimer(timeRemaining)
 		done := make(chan bool)
 
 		go func() {
@@ -214,7 +334,7 @@ func main() {
 					seconds--
 
 					err := sse.PatchElementTempl(
-						cooking.Timer(recipe, task, seconds),
+						cooking.Timer(id, path, seconds),
 						datastar.WithModeReplace(),
 					)
 					if err != nil {
@@ -225,49 +345,11 @@ func main() {
 			}
 		}()
 
-		t := time.NewTimer(task.PrepTime)
-		<-t.C
+		<-timer.C
 		ticker.Stop()
 		done <- true
 
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
-	})
-
-	mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
-		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
-		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-
-		task, err := recipes.ParseTask(recipe, r.PathValue("task"))
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		cs := internal.NewCookieStorage(recipe, w, r)
-
-		_, err = cs.DecrementPrepCookie(task, 1*time.Second)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		if cs.IsEveryTaskFinished() {
-			cookie, err := cs.ToNextStep()
-			if err != nil {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			http.SetCookie(w, cookie)
-
-			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
-		}
 	})
 
 	mux.HandleFunc("PATCH /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
