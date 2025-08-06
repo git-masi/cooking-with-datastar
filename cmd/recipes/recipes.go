@@ -147,7 +147,7 @@ func (s Step) String() string {
 	return stepName[s]
 }
 
-func NextStep(s Step) Step {
+func (s Step) GetNextStep() Step {
 	switch s {
 	case Gather:
 		return Prepare
@@ -161,6 +161,10 @@ func NextStep(s Step) Step {
 	default:
 		return Gather
 	}
+}
+
+func GetFirstStep() Step {
+	return Gather
 }
 
 func ParseRecipeStep(name string) (Step, error) {

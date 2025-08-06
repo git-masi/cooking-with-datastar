@@ -148,7 +148,7 @@ func main() {
 			}
 
 			cookie.Path = "/"
-			cookie.Value = recipes.NextStep(step).String()
+			cookie.Value = step.GetNextStep().String()
 
 			http.SetCookie(w, cookie)
 
@@ -259,28 +259,35 @@ func main() {
 
 		cs := internal.NewCookieStorage(recipe, w, r)
 
-		cookie, err := cs.GetPrepCookie(task)
+		_, err = cs.DecrementPrepCookie(task, 1*time.Second)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		timeRemaining, err := time.ParseDuration(cookie.Value)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
+		if cs.IsEveryTaskFinished() {
+			cookie, err := cs.GetStepCookie()
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			step, err := recipes.ParseRecipeStep(cookie.Value)
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			cookie.Path = "/"
+			cookie.Value = step.GetNextStep().String()
+
+			http.SetCookie(w, cookie)
+
+			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
 		}
-
-		if timeRemaining.Seconds() == 0 {
-			return
-		}
-
-		cookie.Path = "/"
-		cookie.Value = (timeRemaining - 1*time.Second).String()
-
-		http.SetCookie(w, cookie)
 	})
 
 	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {
