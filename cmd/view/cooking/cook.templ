@@ -11,7 +11,9 @@ templ Cook(r recipes.Recipe, s recipes.Step) {
 		{ children... }
 		<button
 			id={ "button-" + r.GetCookingMethod() }
-			disabled={ s != recipes.Cook }
+			if s != recipes.Cook {
+				disabled
+			}
 		>
 			{ internal.ToStartCase(r.GetCookingMethod()) }
 		</button>
