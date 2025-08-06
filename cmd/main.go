@@ -170,8 +170,65 @@ func main() {
 			return
 		}
 
-		seconds := int(task.PrepTime.Seconds())
+		cs := internal.NewCookieStorage(recipe, w, r)
+
+		cookie, err := cs.GetPrepCookie()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		data, err := hex.DecodeString(cookie.Value)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		var prepared map[string]time.Duration
+		err = json.Unmarshal(data, &prepared)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		timeRemaining, ok := prepared[task.Key]
+		if !ok {
+			logger.Error("cannot find value for task in map", slog.String("task", task.Key))
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
 		sse := datastar.NewSSE(w, r)
+
+		if timeRemaining.Seconds() == 0 {
+			sse.PatchElementTempl(
+				cooking.Timer(task.Key, internal.DisplayMinutesSeconds(0)),
+				datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
+				datastar.WithModeAfter(),
+			)
+
+			sse.ExecuteScript(`document.querySelector("#ring").remove()`)
+			return
+		}
+
+		prepared[task.Key] = 0 * time.Second
+
+		json, err := json.Marshal(prepared)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		cookie.Path = "/"
+		cookie.Value = hex.EncodeToString(json)
+
+		http.SetCookie(w, cookie)
+
+		seconds := int(task.PrepTime.Seconds())
 
 		err = sse.PatchElementTempl(
 			cooking.Timer(task.Key, internal.DisplayMinutesSeconds(seconds)),
@@ -212,49 +269,6 @@ func main() {
 		done <- true
 
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
-
-		cs := internal.NewCookieStorage(recipe, w, r)
-
-		cookie, err := cs.GetPrepCookie()
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		data, err := hex.DecodeString(cookie.Value)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		var prepared map[string]time.Duration
-		err = json.Unmarshal(data, &prepared)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		_, ok := prepared[task.Key]
-		if !ok {
-			logger.Error("cannot find value for task in map", slog.String("task", task.Key))
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		prepared[task.Key] = 0 * time.Second
-
-		json, err := json.Marshal(prepared)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		cookie.Path = "/"
-		cookie.Value = hex.EncodeToString(json)
 	})
 
 	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {
