@@ -244,7 +244,6 @@ func main() {
 	})
 
 	mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
-		logger.Debug("patch cookie")
 		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
