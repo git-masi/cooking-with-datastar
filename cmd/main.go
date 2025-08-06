@@ -17,10 +17,6 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-var prepTime = map[string]time.Duration{
-	"cook-the-chicken": 25 * time.Second,
-}
-
 func main() {
 	port := flag.Int("port", 8080, "A port to listen on")
 	flag.Parse()
@@ -161,25 +157,25 @@ func main() {
 	})
 
 	mux.HandleFunc("GET /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
-		_, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
-		task := r.PathValue("task")
-
-		duration, ok := prepTime[task]
-		if !ok {
+		task, err := recipes.ParseTask(recipe, r.PathValue("task"))
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		count := int(duration.Seconds())
+		count := int(task.PrepTime.Seconds())
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Timer(task, internal.DisplayMinutesSeconds(count)),
-			datastar.WithSelectorID(fmt.Sprintf("button-%s", task)),
+			cooking.Timer(task.Key, internal.DisplayMinutesSeconds(count)),
+			datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
 			datastar.WithModeAfter(),
 		)
 		if err != nil {
@@ -200,7 +196,7 @@ func main() {
 					count--
 
 					err := sse.PatchElementTempl(
-						cooking.Timer(task, internal.DisplayMinutesSeconds(count)),
+						cooking.Timer(task.Key, internal.DisplayMinutesSeconds(count)),
 					)
 					if err != nil {
 						logger.Error(err.Error())
@@ -210,7 +206,7 @@ func main() {
 			}
 		}()
 
-		t := time.NewTimer(duration)
+		t := time.NewTimer(task.PrepTime)
 		<-t.C
 		ticker.Stop()
 		done <- true
