@@ -170,11 +170,11 @@ func main() {
 			return
 		}
 
-		count := int(task.PrepTime.Seconds())
+		seconds := int(task.PrepTime.Seconds())
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Timer(task.Key, internal.DisplayMinutesSeconds(count)),
+			cooking.Timer(task.Key, internal.DisplayMinutesSeconds(seconds)),
 			datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
 			datastar.WithModeAfter(),
 		)
@@ -193,10 +193,10 @@ func main() {
 				case <-done:
 					return
 				case <-ticker.C:
-					count--
+					seconds--
 
 					err := sse.PatchElementTempl(
-						cooking.Timer(task.Key, internal.DisplayMinutesSeconds(count)),
+						cooking.Timer(task.Key, internal.DisplayMinutesSeconds(seconds)),
 					)
 					if err != nil {
 						logger.Error(err.Error())
