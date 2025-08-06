@@ -87,9 +87,9 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 	return cookie, nil
 }
 
-func (cs CookieStorage) GetPrepCookie() (*http.Cookie, error) {
+func (cs CookieStorage) GetPrepCookie(task recipes.Task) (*http.Cookie, error) {
 	recipeName := cs.recipe.String()
-	cookieName := recipeName + "-prep"
+	cookieName := recipeName + "-prep-" + task.Key
 
 	cookie, err := cs.req.Cookie(cookieName)
 	if err != nil {
@@ -97,20 +97,9 @@ func (cs CookieStorage) GetPrepCookie() (*http.Cookie, error) {
 			return nil, err
 		}
 
-		prepared := map[string]time.Duration{}
-
-		for _, v := range cs.recipe.ListPrepTasks() {
-			prepared[v.Key] = v.PrepTime
-		}
-
-		json, err := json.Marshal(prepared)
-		if err != nil {
-			return nil, err
-		}
-
 		cookie = &http.Cookie{
 			Name:     cookieName,
-			Value:    hex.EncodeToString(json),
+			Value:    task.PrepTime.String(),
 			Path:     "/",
 			MaxAge:   int((24 * time.Hour).Seconds()),
 			HttpOnly: true,                 // Do not allow JS to modify the cookie
