@@ -133,22 +133,12 @@ func main() {
 		http.SetCookie(w, cookie)
 
 		if count == len(ingredients) {
-			cookie, err := cs.GetStepCookie()
+			cookie, err := cs.ToNextStep()
 			if err != nil {
 				logger.Error(err.Error())
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-
-			step, err := recipes.ParseRecipeStep(cookie.Value)
-			if err != nil {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			cookie.Path = "/"
-			cookie.Value = step.GetNextStep().String()
 
 			http.SetCookie(w, cookie)
 
