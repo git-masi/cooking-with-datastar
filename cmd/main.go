@@ -270,6 +270,25 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("PATCH /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
+		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		cs := internal.NewCookieStorage(recipe, w, r)
+
+		cookie, err := cs.DecrementCookingMethodCookie(1 * time.Second)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, cookie)
+	})
+
 	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {
 		// TODO: Render static HTML
 		about.About().Render(r.Context(), w)

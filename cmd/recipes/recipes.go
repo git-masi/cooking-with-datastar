@@ -16,6 +16,11 @@ type Task struct {
 	PrepTime    time.Duration
 }
 
+type CookingMethod struct {
+	Name     string
+	CookTime time.Duration
+}
+
 type Recipe int
 
 const (
@@ -92,19 +97,19 @@ func (r Recipe) ListPrepTasks() []Task {
 	}
 }
 
-func (r Recipe) GetCookingMethod() string {
+func (r Recipe) GetCookingMethod() CookingMethod {
 	switch r {
 	case BuffaloChickenDip:
-		return "bake"
+		return CookingMethod{"bake", 25 * time.Second}
 
 	case ChocolateChipCookies:
-		return "bake"
+		return CookingMethod{"bake", 12 * time.Second}
 
 	case PulledPork:
-		return "slow cook"
+		return CookingMethod{"slow cook", 30 * time.Second}
 
 	default:
-		return ""
+		return CookingMethod{}
 	}
 }
 

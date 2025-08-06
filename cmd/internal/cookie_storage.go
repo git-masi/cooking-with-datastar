@@ -163,3 +163,50 @@ func (cs CookieStorage) IsEveryTaskFinished() bool {
 
 	return true
 }
+
+func (cs CookieStorage) GetCookingMethodCookie() (*http.Cookie, error) {
+	recipeName := cs.recipe.String()
+	cookieName := recipeName + "-cook"
+
+	cookie, err := cs.req.Cookie(cookieName)
+	if err != nil {
+		if !errors.Is(err, http.ErrNoCookie) {
+			return nil, err
+		}
+
+		cookie = &http.Cookie{
+			Name:     cookieName,
+			Value:    cs.recipe.GetCookingMethod().CookTime.String(),
+			Path:     "/",
+			MaxAge:   int((24 * time.Hour).Seconds()),
+			HttpOnly: true,                 // Do not allow JS to modify the cookie
+			Secure:   true,                 // Only use HTTPS (and localhost)
+			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
+		}
+
+		http.SetCookie(cs.res, cookie)
+	}
+
+	return cookie, nil
+}
+
+func (cs CookieStorage) DecrementCookingMethodCookie(amount time.Duration) (*http.Cookie, error) {
+	cookie, err := cs.GetCookingMethodCookie()
+	if err != nil {
+		return nil, err
+	}
+
+	timeRemaining, err := time.ParseDuration(cookie.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	if timeRemaining.Seconds() <= 0 {
+		return cookie, err
+	}
+
+	cookie.Path = "/"
+	cookie.Value = (timeRemaining - amount).String()
+
+	return cookie, nil
+}

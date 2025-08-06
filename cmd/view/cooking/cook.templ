@@ -3,19 +3,21 @@ package cooking
 import (
 	"cooking-with-datastar/cmd/internal"
 	"cooking-with-datastar/cmd/recipes"
+	"fmt"
 )
 
-templ Cook(r recipes.Recipe, s recipes.Step) {
+templ Cook(r recipes.Recipe, cm recipes.CookingMethod, s recipes.Step) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
 		{ children... }
 		<button
-			id={ "button-" + r.GetCookingMethod() }
+			id={ "button-" + cm.Name }
+			data-on-click={ fmt.Sprintf("@patch('/cook/%s')", r.String()) }
 			if s != recipes.Cook {
 				disabled
 			}
 		>
-			{ internal.ToStartCase(r.GetCookingMethod()) }
+			{ internal.ToStartCase(cm.Name) }
 		</button>
 	</section>
 }
