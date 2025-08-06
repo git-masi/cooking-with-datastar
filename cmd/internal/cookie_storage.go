@@ -49,6 +49,23 @@ func (cs CookieStorage) GetStepCookie() (*http.Cookie, error) {
 	return cookie, nil
 }
 
+func (cs CookieStorage) ToNextStep() (*http.Cookie, error) {
+	cookie, err := cs.GetStepCookie()
+	if err != nil {
+		return nil, err
+	}
+
+	step, err := recipes.ParseRecipeStep(cookie.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	cookie.Path = "/"
+	cookie.Value = step.GetNextStep().String()
+
+	return cookie, nil
+}
+
 func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 	recipeName := cs.recipe.String()
 	cookieName := recipeName + "-ingredients"
