@@ -190,7 +190,7 @@ func main() {
 
 		if timeRemaining.Seconds() == 0 {
 			sse.PatchElementTempl(
-				cooking.Timer(task.Key, internal.DisplayMinutesSeconds(0)),
+				cooking.Timer(recipe, task, 0),
 				datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
 				datastar.WithModeAfter(),
 			)
@@ -202,7 +202,7 @@ func main() {
 		seconds := int(task.PrepTime.Seconds())
 
 		err = sse.PatchElementTempl(
-			cooking.Timer(task.Key, internal.DisplayMinutesSeconds(seconds)),
+			cooking.Timer(recipe, task, seconds),
 			datastar.WithSelectorID(fmt.Sprintf("button-%s", task.Key)),
 			datastar.WithModeAfter(),
 		)
@@ -224,7 +224,7 @@ func main() {
 					seconds--
 
 					err := sse.PatchElementTempl(
-						cooking.Timer(task.Key, internal.DisplayMinutesSeconds(seconds)),
+						cooking.Timer(recipe, task, seconds),
 					)
 					if err != nil {
 						logger.Error(err.Error())
@@ -240,6 +240,46 @@ func main() {
 		done <- true
 
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
+	})
+
+	mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
+		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		task, err := recipes.ParseTask(recipe, r.PathValue("task"))
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		cs := internal.NewCookieStorage(recipe, w, r)
+
+		cookie, err := cs.GetPrepCookie(task)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		timeRemaining, err := time.ParseDuration(cookie.Value)
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		if timeRemaining.Seconds() == 0 {
+			return
+		}
+
+		cookie.Path = "/"
+		cookie.Value = (timeRemaining - 1*time.Second).String()
+
+		http.SetCookie(w, cookie)
 	})
 
 	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {

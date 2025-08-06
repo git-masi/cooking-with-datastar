@@ -1,12 +1,19 @@
 package cooking
 
-templ TimeDisplay(time string) {
-	<span id="time" style="font-family: Consolas, Monaco, 'Lucida Console', monospace;">{ time }</span>
-}
+import (
+	"cooking-with-datastar/cmd/internal"
+	"cooking-with-datastar/cmd/recipes"
+	"fmt"
+)
 
-templ Timer(task string, time string) {
-	<div id={ "count-down-" + task } class="count-down" style="display: flex; justify-content: center; align-items: center;">
+templ Timer(recipe recipes.Recipe, task recipes.Task, seconds int) {
+	<div
+		id={ "count-down-" + task.Key }
+		class="count-down"
+		style="display: flex; justify-content: center; align-items: center;"
+		data-on-load={ fmt.Sprintf("@patch('/prep/%s/%s')", recipe, task.Key) }
+	>
 		<div id="ring" class="ring"></div>
-		@TimeDisplay(time)
+		<span id="time" style="font-family: Consolas, Monaco, 'Lucida Console', monospace;">{ internal.DisplayMinutesSeconds(seconds) }</span>
 	</div>
 }
