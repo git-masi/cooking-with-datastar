@@ -86,3 +86,40 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 
 	return cookie, nil
 }
+
+func (cs CookieStorage) GetPrepCookie() (*http.Cookie, error) {
+	recipeName := cs.recipe.String()
+	cookieName := recipeName + "-prep"
+
+	cookie, err := cs.req.Cookie(cookieName)
+	if err != nil {
+		if !errors.Is(err, http.ErrNoCookie) {
+			return nil, err
+		}
+
+		prepared := map[string]time.Duration{}
+
+		for _, v := range cs.recipe.ListPrepTasks() {
+			prepared[v.Key] = v.PrepTime
+		}
+
+		json, err := json.Marshal(prepared)
+		if err != nil {
+			return nil, err
+		}
+
+		cookie = &http.Cookie{
+			Name:     cookieName,
+			Value:    hex.EncodeToString(json),
+			Path:     "/",
+			MaxAge:   int((24 * time.Hour).Seconds()),
+			HttpOnly: true,                 // Do not allow JS to modify the cookie
+			Secure:   true,                 // Only use HTTPS (and localhost)
+			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
+		}
+
+		http.SetCookie(cs.res, cookie)
+	}
+
+	return cookie, nil
+}
