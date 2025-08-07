@@ -72,7 +72,7 @@ func (r Recipe) ListPrepTasks() []Task {
 	switch r {
 	case BuffaloChickenDip:
 		return []Task{
-			{"cook-the-chicken", "Poach your chicken for approximately 25 minutes. When fully cooked, remove from pot and allow to cool until safe to handle."},
+			{"cook-the-chicken", "Poach the chicken for approximately 25 minutes. When fully cooked, remove from pot and allow to cool until safe to handle."},
 			{"shred", "Shred chicken in food processor."},
 			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit."},
 			{"cube", "Cut the cream cheese into 1 inch cubes."},

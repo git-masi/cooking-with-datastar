@@ -9,21 +9,28 @@ import (
 templ Prep(r recipes.Recipe, s recipes.Step) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Prepare) }>
 		<h3>Prep work</h3>
+		<hr/>
 		for _,t := range r.ListPrepTasks() {
+			{{ signalName := internal.ToCamelCase(t.Key) }}
 			<div style="margin-bottom: 2rem;">
 				<p>
 					{ t.Description }
 				</p>
-				<div style="display: flex; justify-content: space-between; align-items: center;">
+				<div style="display: flex; justify-content: end; margin-bottom: var(--pico-typography-spacing-vertical);">
 					<button
 						id={ fmt.Sprintf("button-%s", t.Key) }
-						data-on-click={ "el.disabled = true; " + fmt.Sprintf("@get('/prep/%s/%s')", r, t.Key) }
+						data-signals={ fmt.Sprintf("{%s: false}", signalName) }
+						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", signalName) }
+						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s')", r, t.Key) }
 						if s != recipes.Prepare {
 							disabled
 						}
 					>
 						{ internal.ToStartCase(t.Key) }
 					</button>
+				</div>
+				<div class="progress">
+					<div class="progress-value" style="display: none;" data-show={ "$" + signalName }></div>
 				</div>
 				<hr/>
 			</div>

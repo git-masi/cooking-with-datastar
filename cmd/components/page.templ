@@ -45,6 +45,33 @@ templ Page(title string) {
 					75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    100%)}
 					100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    0   )}
 				}
+
+				.progress {
+					background: var(--pico-color-grey-50);
+					justify-content: flex-start;
+					border-radius: 5px;
+					align-items: center;
+					position: relative;
+					display: flex;
+					height: 1rem;
+					flex-grow: 1;
+					padding: .125rem;
+					box-sizing: border-box;
+				}
+
+				.progress-value {
+					animation: progress 5s normal forwards;
+					box-shadow: 0 10px 3rem -10px #fff;
+					border-radius: 5px;
+					background: var(--pico-primary);
+					height: 100%;
+					width: 0;
+				}
+
+				@keyframes progress {
+					0% { width: 0; }
+					100% { width: 100%; }
+				}
 			</style>
 			<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js"></script>
 		</head>
