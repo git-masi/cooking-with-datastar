@@ -4,6 +4,7 @@ import (
 	"cooking-with-datastar/cmd/internal"
 	"cooking-with-datastar/cmd/recipes"
 	"fmt"
+	"strings"
 )
 
 templ Prep(r recipes.Recipe, s recipes.Step) {
@@ -11,7 +12,11 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 		<h3>Prep work</h3>
 		<hr/>
 		for _,t := range r.ListPrepTasks() {
-			{{ signalName := internal.ToCamelCase(t.Name) }}
+			{{
+				baseSignalName := internal.ToCamelCase(t.Name)
+				showSignalName := baseSignalName + "Show"
+				missingDependenciesSignalName := baseSignalName + "MissingDependencies"
+			}}
 			<div style="margin-bottom: 2rem;">
 				<p>
 					{ t.Description }
@@ -19,9 +24,11 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 				<div style="display: flex; justify-content: end; margin-bottom: var(--pico-typography-spacing-vertical);">
 					<button
 						id={ fmt.Sprintf("button-%s", t.Name) }
-						data-signals={ fmt.Sprintf("{%s: false}", signalName) }
-						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", signalName) }
-						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s')", r, t.Name) }
+						data-signals={ fmt.Sprintf("{%s: false}", baseSignalName) }
+						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", showSignalName) }
+						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s');", r, t.Name) + fmt.Sprintf("$%s = true;", baseSignalName) }
+						data-effect={ fmt.Sprintf("$%s = %s", missingDependenciesSignalName, getDependenciesExpression(t.Dependencies)) }
+						data-attr-disabled={ "$" + missingDependenciesSignalName }
 						if s != recipes.Prepare {
 							disabled
 						}
@@ -30,10 +37,24 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 					</button>
 				</div>
 				<div class="progress">
-					<div class="progress-value" style="display: none;" data-show={ "$" + signalName }></div>
+					<div class="progress-value" style="display: none;" data-show={ "$" + showSignalName }></div>
 				</div>
 				<hr/>
 			</div>
 		}
 	</section>
+}
+
+func getDependenciesExpression(dependencies []string) string {
+	if len(dependencies) == 0 {
+		return "false"
+	}
+
+	signals := []string{}
+
+	for _, d := range dependencies {
+		signals = append(signals, "!$"+internal.ToCamelCase(d))
+	}
+
+	return strings.Join(signals, " || ")
 }
