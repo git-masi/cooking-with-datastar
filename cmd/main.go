@@ -48,22 +48,7 @@ func main() {
 			return
 		}
 
-		cookie, err = cs.GetIngredientsCookie()
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		data, err := hex.DecodeString(cookie.Value)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		var gathered map[string]bool
-		err = json.Unmarshal(data, &gathered)
+		gathered, err := cs.GetGatheredIngredients()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

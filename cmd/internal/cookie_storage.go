@@ -154,6 +154,26 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 	return cookie, nil
 }
 
+func (cs CookieStorage) GetGatheredIngredients() (map[string]bool, error) {
+	cookie, err := cs.GetIngredientsCookie()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := hex.DecodeString(cookie.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	var gathered map[string]bool
+	err = json.Unmarshal(data, &gathered)
+	if err != nil {
+		return nil, err
+	}
+
+	return gathered, nil
+}
+
 func (cs CookieStorage) GetCookingMethodCookie() (*http.Cookie, error) {
 	recipeName := cs.recipe.String()
 	cookieName := recipeName + "-cook"
