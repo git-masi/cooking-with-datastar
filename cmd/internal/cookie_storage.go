@@ -79,7 +79,7 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 		gathered := map[string]bool{}
 
 		for _, v := range cs.recipe.ListIngredients() {
-			gathered[v.Key] = false
+			gathered[v.Name] = false
 		}
 
 		json, err := json.Marshal(gathered)

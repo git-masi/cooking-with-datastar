@@ -6,12 +6,12 @@ import (
 )
 
 type Ingredient struct {
-	Key         string
+	Name        string
 	Description string
 }
 
 type Task struct {
-	Key         string
+	Name        string
 	Description string
 }
 
@@ -183,7 +183,7 @@ func ParseRecipeStep(name string) (Step, error) {
 
 func ParseTask(r Recipe, key string) (Task, error) {
 	for _, v := range r.ListPrepTasks() {
-		if v.Key == key {
+		if v.Name == key {
 			return v, nil
 		}
 	}

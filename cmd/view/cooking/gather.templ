@@ -16,14 +16,14 @@ templ Gather(r recipes.Recipe, s recipes.Step, gathered map[string]bool) {
 					<label>
 						<input
 							type="checkbox"
-							name={ ingredient.Key }
-							data-bind={ ingredient.Key }
+							name={ ingredient.Name }
+							data-bind={ ingredient.Name }
 							data-attr="{disabled: !$gathering}"
-							if gathered[ingredient.Key] {
+							if gathered[ingredient.Name] {
 								checked
 							}
 						/>
-						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", ingredient.Key) }>
+						<span data-style={ fmt.Sprintf("{textDecoration: $%s ? 'line-through' : 'none'}", ingredient.Name) }>
 							{ ingredient.Description }
 						</span>
 					</label>

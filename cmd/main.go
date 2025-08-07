@@ -104,8 +104,8 @@ func main() {
 		for _, v := range ingredients {
 			// Form data only includes the name of the checkbox if it is checked.
 			// So if the value exists at all then we know the value is "true"
-			checked := r.Form.Has(v.Key)
-			gathered[v.Key] = checked
+			checked := r.Form.Has(v.Name)
+			gathered[v.Name] = checked
 			if checked {
 				count++
 			}

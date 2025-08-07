@@ -11,22 +11,22 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 		<h3>Prep work</h3>
 		<hr/>
 		for _,t := range r.ListPrepTasks() {
-			{{ signalName := internal.ToCamelCase(t.Key) }}
+			{{ signalName := internal.ToCamelCase(t.Name) }}
 			<div style="margin-bottom: 2rem;">
 				<p>
 					{ t.Description }
 				</p>
 				<div style="display: flex; justify-content: end; margin-bottom: var(--pico-typography-spacing-vertical);">
 					<button
-						id={ fmt.Sprintf("button-%s", t.Key) }
+						id={ fmt.Sprintf("button-%s", t.Name) }
 						data-signals={ fmt.Sprintf("{%s: false}", signalName) }
 						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", signalName) }
-						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s')", r, t.Key) }
+						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s')", r, t.Name) }
 						if s != recipes.Prepare {
 							disabled
 						}
 					>
-						{ internal.ToStartCase(t.Key) }
+						{ internal.ToStartCase(t.Name) }
 					</button>
 				</div>
 				<div class="progress">
