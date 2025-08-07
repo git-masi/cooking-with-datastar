@@ -30,3 +30,29 @@ func TestToStartCase(t *testing.T) {
 		})
 	}
 }
+
+func TestToCamelCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"kebab case", "kebab-case", "kebabCase"},
+		{"snake case", "snake_case", "snakeCase"},
+		{"camel case", "camelCase", "camelCase"},
+		{"pascal case", "PascalCase", "pascalCase"},
+		{"spaces", "one two", "oneTwo"},
+		{"mixed case", "Some-words_go here", "someWordsGoHere"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := internal.ToCamelCase(tc.input)
+
+			if result != tc.expected {
+				t.Logf("want '%s', got '%s'", tc.expected, result)
+				t.Fail()
+			}
+		})
+	}
+}
