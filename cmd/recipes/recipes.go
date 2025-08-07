@@ -13,7 +13,6 @@ type Ingredient struct {
 type Task struct {
 	Key         string
 	Description string
-	PrepTime    time.Duration
 }
 
 type CookingMethod struct {
@@ -73,23 +72,23 @@ func (r Recipe) ListPrepTasks() []Task {
 	switch r {
 	case BuffaloChickenDip:
 		return []Task{
-			{"cook-the-chicken", "Poach your chicken for approximately 25 minutes. When fully cooked, remove from pot and allow to cool until safe to handle.", 25 * time.Second},
-			{"shred", "Shred chicken in food processor.", 10 * time.Second},
-			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit.", 15 * time.Second},
-			{"cube", "Cut the cream cheese into 1 inch cubes.", 5 * time.Second},
-			{"warm-the-sauce", "Heat medium sauce pot over medium-low heat. Add the cubed cream cheese, ranch dressing, hot sauce, black pepper, and garlic powder. Whisk constantly until the cream cheese has dissolved. Remove from heat.", 10 * time.Second},
-			{"prep-the-pan", "Apply cooking spray to 9x9 inch pan.", 5 * time.Second},
-			{"combine", "Combine the shredded chicken, sauce, green onions, and cheese in a large pot. Transfer to baking pan.", 5 * time.Second},
+			{"cook-the-chicken", "Poach your chicken for approximately 25 minutes. When fully cooked, remove from pot and allow to cool until safe to handle."},
+			{"shred", "Shred chicken in food processor."},
+			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit."},
+			{"cube", "Cut the cream cheese into 1 inch cubes."},
+			{"warm-the-sauce", "Heat medium sauce pot over medium-low heat. Add the cubed cream cheese, ranch dressing, hot sauce, black pepper, and garlic powder. Whisk constantly until the cream cheese has dissolved. Remove from heat."},
+			{"prep-the-pan", "Apply cooking spray to 9x9 inch pan."},
+			{"combine", "Combine the shredded chicken, sauce, green onions, and cheese in a large pot. Transfer to baking pan."},
 		}
 
 	case ChocolateChipCookies:
 		return []Task{
-			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit.", 15 * time.Second},
+			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit."},
 		}
 
 	case PulledPork:
 		return []Task{
-			{"combine", "Combine onions, pork, and stock in slow cooker.", 55 * time.Second},
+			{"combine", "Combine onions, pork, and stock in slow cooker."},
 		}
 
 	default:
