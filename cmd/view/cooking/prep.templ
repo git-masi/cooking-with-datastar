@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-templ Prep(r recipes.Recipe, s recipes.Step) {
+templ Prep(r recipes.Recipe, s recipes.Step, finishedTasks map[string]bool) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Prepare) }>
 		<h3>Prep work</h3>
 		<hr/>
@@ -24,20 +24,27 @@ templ Prep(r recipes.Recipe, s recipes.Step) {
 				<div style="display: flex; justify-content: end; margin-bottom: var(--pico-typography-spacing-vertical);">
 					<button
 						id={ fmt.Sprintf("button-%s", t.Name) }
-						data-signals={ fmt.Sprintf("{%s: false}", baseSignalName) }
+						data-signals={ fmt.Sprintf("{%s: %v}", baseSignalName, finishedTasks[t.Name]) }
 						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", showSignalName) }
 						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s');", r, t.Name) + fmt.Sprintf("$%s = true;", baseSignalName) }
 						data-effect={ fmt.Sprintf("$%s = %s", missingDependenciesSignalName, getDependenciesExpression(t.Dependencies)) }
-						data-attr-disabled={ "$" + missingDependenciesSignalName }
-						if s != recipes.Prepare {
+						if s != recipes.Prepare || finishedTasks[t.Name] {
 							disabled
+						} else {
+							data-attr-disabled={ "$" + missingDependenciesSignalName }
 						}
 					>
 						{ internal.ToStartCase(t.Name) }
 					</button>
 				</div>
 				<div class="progress">
-					<div class="progress-value" style="display: none;" data-show={ "$" + showSignalName }></div>
+					<div
+						class={ internal.Ternary(finishedTasks[t.Name], "progress-finished", "progress-value") }
+						if !finishedTasks[t.Name] {
+							style="display: none;"
+							data-show={ "$" + showSignalName }
+						}
+					></div>
 				</div>
 				<hr/>
 			</div>

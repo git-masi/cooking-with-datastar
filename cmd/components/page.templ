@@ -68,6 +68,14 @@ templ Page(title string) {
 					width: 0;
 				}
 
+				.progress-finished {
+					box-shadow: 0 10px 3rem -10px #fff;
+					border-radius: 5px;
+					background: var(--pico-primary);
+					height: 100%;
+					width: 100%;
+				}
+
 				@keyframes progress {
 					0% { width: 0; }
 					100% { width: 100%; }

@@ -70,10 +70,22 @@ func main() {
 			return
 		}
 
+		finishedTasks := map[string]bool{}
+		for _, task := range recipe.ListPrepTasks() {
+			cookie, err := cs.GetTaskCookie(task)
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			finishedTasks[task.Name] = cookie.Value == "true"
+		}
+
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, gathered),
+			cooking.Recipe(recipe, step, gathered, finishedTasks),
 		)
 		if err != nil {
 			logger.Error(err.Error())
