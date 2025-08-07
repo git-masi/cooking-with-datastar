@@ -183,6 +183,26 @@ func main() {
 		}
 
 		http.SetCookie(w, cookie)
+
+		finished, err := cs.FinishedAllTasks()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		if finished {
+			cookie, err := cs.ToNextStep()
+			if err != nil {
+				logger.Error(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+
+			http.SetCookie(w, cookie)
+
+			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
+		}
 	})
 
 	mux.HandleFunc("GET /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {

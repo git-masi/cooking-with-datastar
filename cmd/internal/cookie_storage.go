@@ -102,6 +102,21 @@ func (cs CookieStorage) FinishTask(task recipes.Task) (*http.Cookie, error) {
 	return cookie, nil
 }
 
+func (cs CookieStorage) FinishedAllTasks() (bool, error) {
+	for _, task := range cs.recipe.ListPrepTasks() {
+		cookie, err := cs.GetTaskCookie(task)
+		if err != nil {
+			return false, err
+		}
+
+		if cookie.Value == "false" {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 	recipeName := cs.recipe.String()
 	cookieName := recipeName + "-ingredients"
