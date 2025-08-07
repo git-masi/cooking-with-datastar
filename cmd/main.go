@@ -146,8 +146,31 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("PATCH /prep/{recipe}/{key}", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: implement
+	mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
+		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
+		if err != nil {
+			logger.Error("Cannot parse recipe", slog.String("error", err.Error()))
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		task, err := recipes.ParseTask(recipe, r.PathValue("task"))
+		if err != nil {
+			logger.Error("Cannot parse task", slog.String("error", err.Error()))
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		cs := internal.NewCookieStorage(recipe, w, r)
+
+		cookie, err := cs.FinishTask(task)
+		if err != nil {
+			logger.Error("Cannot parse task", slog.String("error", err.Error()))
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, cookie)
 	})
 
 	mux.HandleFunc("GET /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
