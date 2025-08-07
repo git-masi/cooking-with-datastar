@@ -164,25 +164,31 @@ func main() {
 
 		http.SetCookie(w, cookie)
 
-		finished, err := cs.FinishedAllTasks()
+		finished, err := cs.GetFinishedTasks()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		finished[task.Name] = true
+
+		// Check if all tasks are finished
+		for _, b := range finished {
+			if !b {
+				return
+			}
+		}
+
+		cookie, err = cs.ToNextStep()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		if finished {
-			cookie, err := cs.ToNextStep()
-			if err != nil {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
+		http.SetCookie(w, cookie)
 
-			http.SetCookie(w, cookie)
-
-			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
-		}
+		http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
 	})
 
 	mux.HandleFunc("GET /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
