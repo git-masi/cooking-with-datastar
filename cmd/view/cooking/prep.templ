@@ -15,7 +15,7 @@ templ Prep(r recipes.Recipe, s recipes.Step, finishedTasks map[string]bool) {
 			{{
 				baseSignalName := internal.ToCamelCase(t.Name)
 				showSignalName := baseSignalName + "Show"
-				missingDependenciesSignalName := baseSignalName + "MissingDependencies"
+				disabledSignalName := baseSignalName + "Disabled"
 			}}
 			<div style="margin-bottom: 2rem;">
 				<p>
@@ -25,13 +25,13 @@ templ Prep(r recipes.Recipe, s recipes.Step, finishedTasks map[string]bool) {
 					<button
 						id={ fmt.Sprintf("button-%s", t.Name) }
 						data-signals={ fmt.Sprintf("{%s: %v}", baseSignalName, finishedTasks[t.Name]) }
-						data-on-click={ fmt.Sprintf("el.disabled = true; $%s = true;", showSignalName) }
+						data-on-click={ fmt.Sprintf("$%s = true; $%s = true;", disabledSignalName, showSignalName) }
 						data-on-click__delay.5s={ fmt.Sprintf("@patch('/prep/%s/%s');", r, t.Name) + fmt.Sprintf("$%s = true;", baseSignalName) }
-						data-effect={ fmt.Sprintf("$%s = %s", missingDependenciesSignalName, getDependenciesExpression(t.Dependencies)) }
+						data-effect={ fmt.Sprintf("$%s = %s", disabledSignalName, getDependenciesExpression(t.Dependencies)) }
 						if s != recipes.Prepare || finishedTasks[t.Name] {
 							disabled
 						} else {
-							data-attr-disabled={ "$" + missingDependenciesSignalName }
+							data-attr-disabled={ "$" + disabledSignalName }
 						}
 					>
 						{ internal.ToStartCase(t.Name) }
