@@ -90,6 +90,20 @@ func (cs CookieStorage) GetTaskCookie(task recipes.Task) (*http.Cookie, error) {
 	return cookie, nil
 }
 
+func (cs CookieStorage) GetFinishedTasks() (map[string]bool, error) {
+	finishedTasks := map[string]bool{}
+	for _, task := range cs.recipe.ListPrepTasks() {
+		cookie, err := cs.GetTaskCookie(task)
+		if err != nil {
+			return nil, err
+		}
+
+		finishedTasks[task.Name] = cookie.Value == "true"
+	}
+
+	return finishedTasks, nil
+}
+
 func (cs CookieStorage) FinishTask(task recipes.Task) (*http.Cookie, error) {
 	cookie, err := cs.GetTaskCookie(task)
 	if err != nil {
