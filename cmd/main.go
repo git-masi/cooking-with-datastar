@@ -96,11 +96,9 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-
 		http.SetCookie(w, cookie)
-		r.AddCookie(cookie)
 
-		finished, err := cs.FinishedGatheringIngredients()
+		finished, err := cs.FinishedGatheringIngredients(cookie)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

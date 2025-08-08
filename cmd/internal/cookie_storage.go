@@ -210,8 +210,14 @@ func (cs CookieStorage) GetGatheredIngredients() (map[string]bool, error) {
 	return gathered, nil
 }
 
-func (cs CookieStorage) FinishedGatheringIngredients() (bool, error) {
-	gathered, err := cs.GetGatheredIngredients()
+func (cs CookieStorage) FinishedGatheringIngredients(cookie *http.Cookie) (bool, error) {
+	data, err := hex.DecodeString(cookie.Value)
+	if err != nil {
+		return false, err
+	}
+
+	var gathered map[string]bool
+	err = json.Unmarshal(data, &gathered)
 	if err != nil {
 		return false, err
 	}
