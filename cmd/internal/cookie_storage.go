@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -163,6 +164,32 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 	return cookie, nil
 }
 
+func (cs CookieStorage) GatherIngredients(form url.Values) (*http.Cookie, error) {
+	cookie, err := cs.GetIngredientsCookie()
+	if err != nil {
+		return nil, err
+	}
+
+	ingredients := cs.recipe.ListIngredients()
+
+	gathered := map[string]bool{}
+	for _, v := range ingredients {
+		// Form data only includes the name of the checkbox if it is checked.
+		// So if the value exists at all then we know the value is "true"
+		gathered[v.Name] = form.Has(v.Name)
+	}
+
+	data, err := json.Marshal(gathered)
+	if err != nil {
+		return nil, err
+	}
+
+	cookie.Path = "/"
+	cookie.Value = hex.EncodeToString(data)
+
+	return cookie, nil
+}
+
 func (cs CookieStorage) GetGatheredIngredients() (map[string]bool, error) {
 	cookie, err := cs.GetIngredientsCookie()
 	if err != nil {
@@ -181,6 +208,21 @@ func (cs CookieStorage) GetGatheredIngredients() (map[string]bool, error) {
 	}
 
 	return gathered, nil
+}
+
+func (cs CookieStorage) FinishedGatheringIngredients() (bool, error) {
+	gathered, err := cs.GetGatheredIngredients()
+	if err != nil {
+		return false, err
+	}
+
+	for _, b := range gathered {
+		if !b {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
 
 func (cs CookieStorage) GetCookingMethodCookie() (*http.Cookie, error) {

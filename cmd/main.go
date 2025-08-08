@@ -5,8 +5,6 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
-	"encoding/hex"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -89,42 +87,26 @@ func main() {
 			return
 		}
 
-		ingredients := recipe.ListIngredients()
-		count := 0
-
-		gathered := map[string]bool{}
-		for _, v := range ingredients {
-			// Form data only includes the name of the checkbox if it is checked.
-			// So if the value exists at all then we know the value is "true"
-			checked := r.Form.Has(v.Name)
-			gathered[v.Name] = checked
-			if checked {
-				count++
-			}
-		}
-
 		cs := internal.NewCookieStorage(recipe, r)
 
-		cookie, err := cs.GetIngredientsCookie()
+		cookie, err := cs.GatherIngredients(r.Form)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-
-		data, err := json.Marshal(gathered)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		cookie.Path = "/"
-		cookie.Value = hex.EncodeToString(data)
 
 		http.SetCookie(w, cookie)
+		r.AddCookie(cookie)
 
-		if count == len(ingredients) {
+		finished, err := cs.FinishedGatheringIngredients()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		if finished {
 			cookie, err := cs.ToNextStep()
 			if err != nil {
 				logger.Error(err.Error())
@@ -135,6 +117,7 @@ func main() {
 			http.SetCookie(w, cookie)
 
 			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
+
 		}
 	})
 
