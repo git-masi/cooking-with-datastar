@@ -43,6 +43,8 @@ func (cs CookieStorage) GetStepCookie() (*http.Cookie, error) {
 		}
 	}
 
+	cookie.Path = "/"
+
 	return cookie, nil
 }
 
@@ -83,6 +85,8 @@ func (cs CookieStorage) GetTaskCookie(task recipes.Task) (*http.Cookie, error) {
 			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
 		}
 	}
+
+	cookie.Path = "/"
 
 	return cookie, nil
 }
@@ -160,6 +164,8 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
 		}
 	}
+
+	cookie.Path = "/"
 
 	return cookie, nil
 }
