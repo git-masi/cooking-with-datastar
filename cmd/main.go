@@ -38,6 +38,7 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		http.SetCookie(w, cookie)
 
 		step, err := recipes.ParseRecipeStep(cookie.Value)
 		if err != nil {
@@ -187,6 +188,7 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		http.SetCookie(w, cookie)
 
 		timeRemaining, err := time.ParseDuration(cookie.Value)
 		if err != nil {
@@ -269,7 +271,6 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-
 		http.SetCookie(w, cookie)
 	})
 
