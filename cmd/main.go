@@ -163,20 +163,17 @@ func main() {
 		}
 
 		http.SetCookie(w, cookie)
+		r.AddCookie(cookie)
 
-		finished, err := cs.GetFinishedTasks()
+		finished, err := cs.FinishedAllTasks()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		finished[task.Name] = true
 
-		// Check if all tasks are finished
-		for _, b := range finished {
-			if !b {
-				return
-			}
+		if !finished {
+			return
 		}
 
 		cookie, err = cs.ToNextStep()
