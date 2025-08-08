@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-templ Cook(r recipes.Recipe, s recipes.Step) {
+templ Cook(r recipes.Recipe, s recipes.Step, cooked bool) {
 	{{ cm := r.GetCookingMethod() }}
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
@@ -15,12 +15,16 @@ templ Cook(r recipes.Recipe, s recipes.Step) {
 			<button
 				id={ "button-" + cm.Name }
 				data-on-click={ fmt.Sprintf("@get('/cook/%s')", r.String()) }
-				if s != recipes.Cook {
+				if s != recipes.Cook || cooked {
 					disabled
 				}
 			>
 				{ internal.ToStartCase(cm.Name) }
 			</button>
 		</div>
+		<img
+			id="finished-recipe"
+			src={ internal.Ternary(cooked, r.GetImageSrc(), "") }
+		/>
 	</section>
 }

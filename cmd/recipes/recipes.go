@@ -113,6 +113,22 @@ func (r Recipe) GetCookingMethod() CookingMethod {
 	}
 }
 
+func (r Recipe) GetImageSrc() string {
+	switch r {
+	case BuffaloChickenDip:
+		return "/static/buffalo_chicken_dip_pixel_art_small.png"
+
+	case ChocolateChipCookies:
+		return ""
+
+	case PulledPork:
+		return ""
+
+	default:
+		return ""
+	}
+}
+
 func ListRecipes() []Recipe {
 	list := []Recipe{}
 

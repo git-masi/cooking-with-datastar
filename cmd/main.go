@@ -5,6 +5,7 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
+	"embed"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -15,6 +16,9 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
+//go:embed "static"
+var Files embed.FS
+
 func main() {
 	port := flag.Int("port", 8080, "A port to listen on")
 	flag.Parse()
@@ -22,6 +26,8 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
 	mux := http.NewServeMux()
+
+	mux.Handle("GET /static/", http.FileServerFS(Files))
 
 	mux.HandleFunc("GET /recipe/{recipe}", func(w http.ResponseWriter, r *http.Request) {
 		recipe, err := recipes.ParseRecipe(r.PathValue("recipe"))
@@ -61,10 +67,17 @@ func main() {
 			return
 		}
 
+		timeRemaining, err := cs.GetRemainingCookTime()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, gathered, finishedTasks),
+			cooking.Recipe(recipe, step, gathered, finishedTasks, timeRemaining.Seconds() <= 0),
 		)
 		if err != nil {
 			logger.Error(err.Error())
@@ -252,6 +265,12 @@ func main() {
 		done <- true
 
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
+
+		sse.PatchElements(
+			fmt.Sprintf("<img id=\"finished-recipe\" src=\"%s\"/>", recipe.GetImageSrc()),
+			datastar.WithSelectorID("button-"+recipe.GetCookingMethod().Name),
+			datastar.WithModeAfter(),
+		)
 	})
 
 	mux.HandleFunc("PATCH /cook/{recipe}", func(w http.ResponseWriter, r *http.Request) {
