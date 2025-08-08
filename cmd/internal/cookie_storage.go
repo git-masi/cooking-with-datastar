@@ -11,14 +11,12 @@ import (
 
 type CookieStorage struct {
 	recipe recipes.Recipe
-	res    http.ResponseWriter
 	req    *http.Request
 }
 
-func NewCookieStorage(recipe recipes.Recipe, res http.ResponseWriter, req *http.Request) CookieStorage {
+func NewCookieStorage(recipe recipes.Recipe, req *http.Request) CookieStorage {
 	return CookieStorage{
 		recipe,
-		res,
 		req,
 	}
 }
@@ -42,8 +40,6 @@ func (cs CookieStorage) GetStepCookie() (*http.Cookie, error) {
 			Secure:   true,                 // Only use HTTPS (and localhost)
 			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
 		}
-
-		http.SetCookie(cs.res, cookie)
 	}
 
 	return cookie, nil
@@ -162,8 +158,6 @@ func (cs CookieStorage) GetIngredientsCookie() (*http.Cookie, error) {
 			Secure:   true,                 // Only use HTTPS (and localhost)
 			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
 		}
-
-		http.SetCookie(cs.res, cookie)
 	}
 
 	return cookie, nil
@@ -208,8 +202,6 @@ func (cs CookieStorage) GetCookingMethodCookie() (*http.Cookie, error) {
 			Secure:   true,                 // Only use HTTPS (and localhost)
 			SameSite: http.SameSiteLaxMode, // Send cookie when navigating *to* our site
 		}
-
-		http.SetCookie(cs.res, cookie)
 	}
 
 	return cookie, nil

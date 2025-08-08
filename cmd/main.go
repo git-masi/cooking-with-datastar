@@ -32,7 +32,7 @@ func main() {
 			return
 		}
 
-		cs := internal.NewCookieStorage(recipe, w, r)
+		cs := internal.NewCookieStorage(recipe, r)
 
 		cookie, err := cs.GetStepCookie()
 		if err != nil {
@@ -103,7 +103,7 @@ func main() {
 			}
 		}
 
-		cs := internal.NewCookieStorage(recipe, w, r)
+		cs := internal.NewCookieStorage(recipe, r)
 
 		cookie, err := cs.GetIngredientsCookie()
 		if err != nil {
@@ -153,7 +153,7 @@ func main() {
 			return
 		}
 
-		cs := internal.NewCookieStorage(recipe, w, r)
+		cs := internal.NewCookieStorage(recipe, r)
 
 		cookie, err := cs.FinishTask(task)
 		if err != nil {
@@ -195,7 +195,7 @@ func main() {
 			return
 		}
 
-		cs := internal.NewCookieStorage(recipe, w, r)
+		cs := internal.NewCookieStorage(recipe, r)
 
 		cookie, err := cs.GetCookingMethodCookie()
 		if err != nil {
@@ -277,7 +277,7 @@ func main() {
 			return
 		}
 
-		cs := internal.NewCookieStorage(recipe, w, r)
+		cs := internal.NewCookieStorage(recipe, r)
 
 		cookie, err := cs.DecrementCookingMethodCookie(1 * time.Second)
 		if err != nil {
