@@ -268,8 +268,6 @@ func main() {
 
 		sse.PatchElements(
 			fmt.Sprintf("<img id=\"finished-recipe\" src=\"%s\"/>", recipe.GetImageSrc()),
-			datastar.WithSelectorID("button-"+recipe.GetCookingMethod().Name),
-			datastar.WithModeAfter(),
 		)
 	})
 
