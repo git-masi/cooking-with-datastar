@@ -106,19 +106,20 @@ func main() {
 			return
 		}
 
-		if finished {
-			cookie, err := cs.ToNextStep()
-			if err != nil {
-				logger.Error(err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			http.SetCookie(w, cookie)
-
-			http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
-
+		if !finished {
+			return
 		}
+
+		cookie, err = cs.ToNextStep()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, cookie)
+
+		http.Redirect(w, r, "/recipe/"+recipe.String(), http.StatusSeeOther)
 	})
 
 	mux.HandleFunc("PATCH /prep/{recipe}/{task}", func(w http.ResponseWriter, r *http.Request) {
