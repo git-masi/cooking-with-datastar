@@ -11,7 +11,7 @@ templ Cook(r recipes.Recipe, s recipes.Step, cooked bool) {
 	<section id="prep-work" style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Cook) }>
 		<h3>Cook the food</h3>
 		{ children... }
-		<div style="display: flex; justify-content: space-between; align-items: center;">
+		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--pico-typography-spacing-vertical);">
 			<button
 				id={ "button-" + cm.Name }
 				data-on-click={ fmt.Sprintf("@get('/cook/%s')", r.String()) }
