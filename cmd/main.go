@@ -73,7 +73,6 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		logger.Debug("finished cooking", slog.Bool("finished", finishedCooking))
 
 		sse := datastar.NewSSE(w, r)
 
