@@ -100,13 +100,13 @@ func (r Recipe) ListPrepTasks() []Task {
 func (r Recipe) GetCookingMethod() CookingMethod {
 	switch r {
 	case BuffaloChickenDip:
-		return CookingMethod{"bake", 25 * time.Second}
+		return CookingMethod{"bake", 10 * time.Second}
 
 	case ChocolateChipCookies:
-		return CookingMethod{"bake", 12 * time.Second}
+		return CookingMethod{"bake", 5 * time.Second}
 
 	case PulledPork:
-		return CookingMethod{"slow cook", 30 * time.Second}
+		return CookingMethod{"slow cook", 15 * time.Second}
 
 	default:
 		return CookingMethod{}
