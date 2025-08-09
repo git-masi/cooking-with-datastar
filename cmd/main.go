@@ -267,7 +267,14 @@ func main() {
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
 
 		sse.PatchElements(
-			fmt.Sprintf("<img id=\"finished-recipe\" src=\"%s\"/>", recipe.GetImageSrc()),
+			fmt.Sprintf(`
+				<img id="finished-recipe" src="%s"/>
+				<button id="button-%s" disabled>%s</button>
+			`,
+				recipe.GetImageSrc(),
+				recipe.GetCookingMethod().Name,
+				recipe.GetCookingMethod().Name,
+			),
 		)
 	})
 
