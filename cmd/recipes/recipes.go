@@ -17,8 +17,9 @@ type Task struct {
 }
 
 type CookingMethod struct {
-	Name     string
-	CookTime time.Duration
+	Name        string
+	Description string
+	CookTime    time.Duration
 }
 
 type Recipe int
@@ -56,7 +57,17 @@ func (r Recipe) ListIngredients() []Ingredient {
 
 	case ChocolateChipCookies:
 		return []Ingredient{
-			{"chocolate-chips", "1 cup chocolate chips"},
+			{"butter", "1 cup butter, softened"},
+			{"white-sugar", "1 cup white sugar"},
+			{"brow-sugar", "1 cup packed brown sugar"},
+			{"eggs", "2 large eggs"},
+			{"vanilla", "2 teaspoons vanilla extract"},
+			{"baking-soda", "1 teaspoon baking soda"},
+			{"hot-water", "2 teaspoons hot water"},
+			{"salt", "0.5 teaspoon salt"},
+			{"flour", "3 cups all-purpose flour"},
+			{"chocolate-chips", "2 cups semisweet chocolate chips"},
+			{"walnuts", "1 cup chopped walnuts"},
 		}
 
 	case PulledPork:
@@ -85,6 +96,10 @@ func (r Recipe) ListPrepTasks() []Task {
 	case ChocolateChipCookies:
 		return []Task{
 			{"heat-the-oven", "Preheat the oven to 350 degrees farenheit.", []string{}},
+			{"beat-eggs", "Beat in eggs, one at a time, then stir in vanilla.", []string{}},
+			{"add-baking-soda", "Dissolve baking soda in hot water. Add to batter along with salt.", []string{"beat-eggs"}},
+			{"stir-in-flour", "Stir in flour, chocolate chips, and walnuts.", []string{"add-baking-soda"}},
+			{"place-dough", "Drop spoonfuls of dough 2 inches apart onto ungreased baking sheets.", []string{"stir-in-flour"}},
 		}
 
 	case PulledPork:
@@ -100,13 +115,13 @@ func (r Recipe) ListPrepTasks() []Task {
 func (r Recipe) GetCookingMethod() CookingMethod {
 	switch r {
 	case BuffaloChickenDip:
-		return CookingMethod{"bake", 10 * time.Second}
+		return CookingMethod{"bake", "Bake for 20-30 minutes, or until the cheese has melted and the sides are starting to bubble.", 10 * time.Second}
 
 	case ChocolateChipCookies:
-		return CookingMethod{"bake", 5 * time.Second}
+		return CookingMethod{"bake", "Bake for 10-12 minutes", 5 * time.Second}
 
 	case PulledPork:
-		return CookingMethod{"slow cook", 15 * time.Second}
+		return CookingMethod{"slow cook", "Slow cook for 6 hours", 15 * time.Second}
 
 	default:
 		return CookingMethod{}
