@@ -258,6 +258,8 @@ func (cs CookieStorage) GetCookingMethodCookie() (*http.Cookie, error) {
 		}
 	}
 
+	cookie.Path = "/"
+
 	return cookie, nil
 }
 
@@ -273,6 +275,15 @@ func (cs CookieStorage) GetRemainingCookTime() (time.Duration, error) {
 	}
 
 	return timeRemaining, err
+}
+
+func (cs CookieStorage) FinishedCooking() (bool, error) {
+	timeRemaining, err := cs.GetRemainingCookTime()
+	if err != nil {
+		return false, err
+	}
+
+	return timeRemaining.Seconds() <= 0, nil
 }
 
 func (cs CookieStorage) DecrementCookingMethodCookie(amount time.Duration) (*http.Cookie, error) {

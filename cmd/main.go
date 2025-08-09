@@ -67,17 +67,18 @@ func main() {
 			return
 		}
 
-		timeRemaining, err := cs.GetRemainingCookTime()
+		finishedCooking, err := cs.FinishedCooking()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		logger.Debug("finished cooking", slog.Bool("finished", finishedCooking))
 
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, gathered, finishedTasks, timeRemaining.Seconds() <= 0),
+			cooking.Recipe(recipe, step, gathered, finishedTasks, finishedCooking),
 		)
 		if err != nil {
 			logger.Error(err.Error())
@@ -201,7 +202,7 @@ func main() {
 		}
 		http.SetCookie(w, cookie)
 
-		timeRemaining, err := time.ParseDuration(cookie.Value)
+		timeRemaining, err := cs.GetRemainingCookTime()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
