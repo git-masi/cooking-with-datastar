@@ -140,10 +140,10 @@ func (r Recipe) GetImageSrc() string {
 		return "/static/buffalo_chicken_dip_pixel_art_small.png"
 
 	case ChocolateChipCookies:
-		return ""
+		return "/static/chocolate_chip_cookies_small.png"
 
 	case PulledPork:
-		return ""
+		return "/static/hamburger_small.png"
 
 	default:
 		return ""
