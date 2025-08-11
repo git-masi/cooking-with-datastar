@@ -110,7 +110,7 @@ func (r Recipe) ListPrepTasks() []Task {
 		return []Task{
 			{"place", "Place pork roast in a slow cooker.", []string{}},
 			{"combine", "Whisk ketchup, brown sugar, vinegar, and hot sauce together in a bowl until well combined", []string{}},
-			{"pour", "Pour the mixture over the pork. Turn pork to coat completely.", []string{}},
+			{"pour", "Pour the mixture over the pork. Turn pork to coat completely.", []string{"place", "combine"}},
 		}
 
 	default:
