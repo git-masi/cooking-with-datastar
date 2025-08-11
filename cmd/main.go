@@ -3,7 +3,6 @@ package main
 import (
 	"cooking-with-datastar/cmd/internal"
 	"cooking-with-datastar/cmd/recipes"
-	"cooking-with-datastar/cmd/view/about"
 	"cooking-with-datastar/cmd/view/cooking"
 	"embed"
 	"flag"
@@ -294,11 +293,6 @@ func main() {
 			return
 		}
 		http.SetCookie(w, cookie)
-	})
-
-	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: Render static HTML
-		about.About().Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
