@@ -72,7 +72,11 @@ func (r Recipe) ListIngredients() []Ingredient {
 
 	case PulledPork:
 		return []Ingredient{
-			{"pork-shoulder", "3 pounds pork shoulder"},
+			{"pork-shoulder", "3 pound boneless pork shoulder roast"},
+			{"ketchup", "1 cup ketchup"},
+			{"brown-sugar", "0.5 cup firmly packed brown sugar"},
+			{"vinegar", "0.25 cup apple cider vinegar"},
+			{"hot-sauce", "Hot sauce to taste"},
 		}
 
 	default:
@@ -104,7 +108,9 @@ func (r Recipe) ListPrepTasks() []Task {
 
 	case PulledPork:
 		return []Task{
-			{"combine", "Combine onions, pork, and stock in slow cooker.", []string{}},
+			{"place", "Place pork roast in a slow cooker.", []string{}},
+			{"combine", "Whisk ketchup, brown sugar, vinegar, and hot sauce together in a bowl until well combined", []string{}},
+			{"pour", "Pour the mixture over the pork. Turn pork to coat completely.", []string{}},
 		}
 
 	default:
@@ -121,7 +127,7 @@ func (r Recipe) GetCookingMethod() CookingMethod {
 		return CookingMethod{"bake", "Bake for 10-12 minutes", 5 * time.Second}
 
 	case PulledPork:
-		return CookingMethod{"slow cook", "Slow cook for 6 hours", 15 * time.Second}
+		return CookingMethod{"slow cook", "Slow cook on low for 8 to 10 hours or High for 4 to 6 hours.", 15 * time.Second}
 
 	default:
 		return CookingMethod{}
