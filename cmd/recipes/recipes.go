@@ -127,7 +127,7 @@ func (r Recipe) GetCookingMethod() CookingMethod {
 		return CookingMethod{"bake", "Bake for 10-12 minutes", 5 * time.Second}
 
 	case PulledPork:
-		return CookingMethod{"slow cook", "Slow cook on low for 8 to 10 hours or High for 4 to 6 hours.", 15 * time.Second}
+		return CookingMethod{"slow-cook", "Slow cook on low for 8 to 10 hours or High for 4 to 6 hours.", 15 * time.Second}
 
 	default:
 		return CookingMethod{}
