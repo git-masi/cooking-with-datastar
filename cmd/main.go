@@ -73,16 +73,9 @@ func main() {
 			return
 		}
 
-		sse := datastar.NewSSE(w, r)
+		w.Header().Set("Content-Type", "text/html")
 
-		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, gatheredIngredients, finishedTasks, finishedCooking),
-		)
-		if err != nil {
-			logger.Error(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
+		cooking.Recipe(recipe, step, gatheredIngredients, finishedTasks, finishedCooking).Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("PATCH /gather/{recipe}", func(w http.ResponseWriter, r *http.Request) {
