@@ -5,7 +5,7 @@ import (
 	"cooking-with-datastar/cmd/recipes"
 )
 
-templ Recipe(r recipes.Recipe, s recipes.Step, gathered map[string]bool, finishedTasks map[string]bool, cooked bool) {
+templ Recipe(r recipes.Recipe, s recipes.Step, gatheredIngredients map[string]bool, finishedTasks map[string]bool, cooked bool) {
 	<main id="main">
 		<header>
 			<hgroup>
@@ -13,7 +13,7 @@ templ Recipe(r recipes.Recipe, s recipes.Step, gathered map[string]bool, finishe
 				<p>So good it'll make you wonder if this site is legit</p>
 			</hgroup>
 		</header>
-		@Gather(r, s, gathered)
+		@Gather(r, s, gatheredIngredients)
 		@Prep(r, s, finishedTasks)
 		@Cook(r, s, cooked)
 	</main>

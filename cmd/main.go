@@ -52,7 +52,7 @@ func main() {
 			return
 		}
 
-		gathered, err := cs.GetGatheredIngredients()
+		gatheredIngredients, err := cs.GetGatheredIngredients()
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -76,7 +76,7 @@ func main() {
 		sse := datastar.NewSSE(w, r)
 
 		err = sse.PatchElementTempl(
-			cooking.Recipe(recipe, step, gathered, finishedTasks, finishedCooking),
+			cooking.Recipe(recipe, step, gatheredIngredients, finishedTasks, finishedCooking),
 		)
 		if err != nil {
 			logger.Error(err.Error())

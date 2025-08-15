@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-templ Gather(r recipes.Recipe, s recipes.Step, gathered map[string]bool) {
+templ Gather(r recipes.Recipe, s recipes.Step, gatheredIngredients map[string]bool) {
 	<section id="gather" data-signals-gathering={ s == recipes.Gather } style={ "padding: 1rem;", internal.GetBorderStyle(s, recipes.Gather) }>
 		<h3>Gather ingredients</h3>
 		<form id="gather-form" data-on-input={ fmt.Sprintf("@patch('/gather/%s', {contentType: 'form'})", r.String()) }>
@@ -19,7 +19,7 @@ templ Gather(r recipes.Recipe, s recipes.Step, gathered map[string]bool) {
 							name={ ingredient.Name }
 							data-bind={ ingredient.Name }
 							data-attr="{disabled: !$gathering}"
-							if gathered[ingredient.Name] {
+							if gatheredIngredients[ingredient.Name] {
 								checked
 							}
 						/>
