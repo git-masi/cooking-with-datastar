@@ -256,6 +256,11 @@ func main() {
 		ticker.Stop()
 		done <- true
 
+		sse.PatchElementTempl(
+			cooking.Timer(id, path, 0),
+			datastar.WithModeReplace(),
+		)
+
 		sse.ExecuteScript(`document.querySelector("#ring").remove()`)
 
 		sse.PatchElements(
